@@ -87,3 +87,21 @@ def test_delete_upload(client):
 def test_config_and_health(client):
     assert client.get("/api/health").json() == {"status": "ok"}
     assert client.get("/api/config").json()["vision_enabled"] is False
+
+
+def test_delete_refuses_processing_and_samples(client):
+    from app.api import routes
+    from documind_core.db import DocumentRow
+
+    doc = _upload(client, [MOTOR])
+    _wait_ready(client, doc["id"])
+    for field, value, code in (("status", "PROCESSING", 409), ("source", "sample", 403)):
+        with routes.get_session_factory()() as s:
+            row = s.get(DocumentRow, doc["id"])
+            original = getattr(row, field)
+            setattr(row, field, value)
+            s.commit()
+        assert client.delete(f"/api/documents/{doc['id']}").status_code == code
+        with routes.get_session_factory()() as s:
+            setattr(s.get(DocumentRow, doc["id"]), field, original)
+            s.commit()
