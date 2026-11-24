@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: "3.12"
       # The API + core test suite does not need Docling/torch.
-      - run: uv sync --frozen --package documind-api
+      - run: uv sync --frozen --package documind-api --group dev
       - run: uv run --no-sync ruff check .
       - run: uv run --no-sync ruff format --check .
       - run: uv run --no-sync mypy packages/core/src services/api/app
