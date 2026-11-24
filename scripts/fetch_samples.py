@@ -43,6 +43,7 @@ def main() -> int:
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    mismatches = 0
     for item in json.loads(MANIFEST.read_text()):
         dest = OUT_DIR / f"{item['slug']}.pdf"
         if dest.exists():
@@ -55,11 +56,12 @@ def main() -> int:
         sha = hashlib.sha256(dest.read_bytes()).hexdigest()
         expected = item.get("sha256")
         status = "ok" if not expected or expected == sha else f"MISMATCH (expected {expected[:12]})"
+        mismatches += status != "ok"
         print(f"{dest.name}  {dest.stat().st_size / 1e6:.1f} MB  sha256:{sha[:12]}  {status}")
         if args.files_dir:
             args.files_dir.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(dest, args.files_dir / f"doc_{sha[:16]}.pdf")
-    return 0
+    return 1 if mismatches else 0
 
 
 if __name__ == "__main__":
