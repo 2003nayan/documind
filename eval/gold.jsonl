@@ -1,0 +1,29 @@
+{"id": "naca-01", "document": "naca-scanned-report", "question": "What is the report number of the NACA strut interference study?", "pages": [1, 3, 5], "facts": ["468"], "type": "scanned"}
+{"id": "naca-02", "document": "naca-scanned-report", "question": "Who are the authors of the report on interference between struts?", "pages": [1, 3, 5], "facts": ["biermann"], "type": "scanned"}
+{"id": "naca-03", "document": "naca-scanned-report", "question": "What value is given for the standard acceleration of gravity?", "pages": [2], "facts": ["9.80665"], "type": "scanned"}
+{"id": "naca-04", "document": "naca-scanned-report", "question": "What is the specific weight of standard air?", "pages": [2], "facts": ["1.2255"], "type": "scanned"}
+{"id": "naca-05", "document": "naca-scanned-report", "question": "In which wind tunnel were the strut interference tests made?", "pages": [5], "facts": ["7- by 10-foot"], "type": "scanned"}
+{"id": "naca-06", "document": "naca-scanned-report", "question": "At what fineness ratio does minimum drag occur for Navy no. 1 struts?", "pages": [8], "facts": ["5"], "type": "figure"}
+{"id": "naca-07", "document": "naca-scanned-report", "question": "What air speed and Reynolds number were used for the Navy no. 1 strut drag tests?", "pages": [8], "facts": ["80"], "type": "figure"}
+{"id": "naca-08", "document": "naca-scanned-report", "question": "Below what spacing does the interference drag of side-by-side cylinders increase very rapidly?", "pages": [9], "facts": ["1.25"], "type": "scanned"}
+{"id": "naca-09", "document": "naca-scanned-report", "question": "What were the dimensions of the strut used to test a strut intersecting a plane?", "pages": [7], "facts": ["6.75"], "type": "scanned"}
+{"id": "naca-10", "document": "naca-scanned-report", "question": "When was the National Advisory Committee for Aeronautics created by act of Congress?", "pages": [4], "facts": ["1915"], "type": "scanned"}
+{"id": "fuel-01", "document": "fuel-economy-guide-2024", "question": "What is the maximum federal income tax credit for a qualifying electric vehicle?", "pages": [5], "facts": ["7,500"], "type": "text"}
+{"id": "fuel-02", "document": "fuel-economy-guide-2024", "question": "How many public charging stations are available across the country?", "pages": [7], "facts": ["59,000"], "type": "text"}
+{"id": "fuel-03", "document": "fuel-economy-guide-2024", "question": "What voltage outlet does Level 1 charging use?", "pages": [7], "facts": ["120"], "type": "text"}
+{"id": "fuel-04", "document": "fuel-economy-guide-2024", "question": "How much can aggressive driving lower gas mileage at highway speeds?", "pages": [8], "facts": ["15%"], "type": "text"}
+{"id": "fuel-05", "document": "fuel-economy-guide-2024", "question": "How much does each 5 MPH over 60 MPH reduce fuel economy?", "pages": [8], "facts": ["7%"], "type": "text"}
+{"id": "fuel-06", "document": "fuel-economy-guide-2024", "question": "What gasoline price per gallon is assumed for regular unleaded in the annual fuel cost ranges?", "pages": [10], "facts": ["3.81"], "type": "figure"}
+{"id": "fuel-07", "document": "fuel-economy-guide-2024", "question": "How many miles per year do the annual fuel cost estimates assume?", "pages": [10], "facts": ["15,000"], "type": "text"}
+{"id": "fuel-08", "document": "fuel-economy-guide-2024", "question": "What is E10 and in which vehicles is it legal?", "pages": [6], "facts": ["10%"], "type": "text"}
+{"id": "fuel-09", "document": "fuel-economy-guide-2024", "question": "Above what gross vehicle weight rating are SUVs not covered by light-duty fuel economy regulations?", "pages": [3], "facts": ["10,000"], "type": "text"}
+{"id": "doe-01", "document": "doe-motor-handbook", "question": "What percentage of industrial sector electricity is used by motor-driven equipment?", "pages": [15], "facts": ["62.5"], "type": "table"}
+{"id": "doe-02", "document": "doe-motor-handbook", "question": "What is the annual motor-driven system energy use in the commercial sector?", "pages": [15], "facts": ["498,000"], "type": "table"}
+{"id": "doe-03", "document": "doe-motor-handbook", "question": "What was the estimated total U.S. motor stock in 2006?", "pages": [16], "facts": ["24.0 million"], "type": "text"}
+{"id": "doe-04", "document": "doe-motor-handbook", "question": "Below what load should downsizing an oversized motor be considered?", "pages": [20], "facts": ["40%"], "type": "text"}
+{"id": "doe-05", "document": "doe-motor-handbook", "question": "What share of units sold were energy efficient motors by 2006?", "pages": [19], "facts": ["50%"], "type": "text"}
+{"id": "doe-06", "document": "doe-motor-handbook", "question": "Which organization supported DOE in developing the Premium Efficiency Motor Selection and Application Guide?", "pages": [3], "facts": ["copper development association"], "type": "text"}
+{"id": "doe-07", "document": "doe-motor-handbook", "question": "What does the acronym ASD stand for?", "pages": [12], "facts": ["adjustable speed drive"], "type": "text"}
+{"id": "neg-01", "document": "fuel-economy-guide-2024", "question": "What is the towing capacity of the Ford F-150 Lightning?", "pages": [], "facts": [], "type": "unanswerable"}
+{"id": "neg-02", "document": "doe-motor-handbook", "question": "What is the price of a 50 hp premium efficiency motor in euros?", "pages": [], "facts": [], "type": "unanswerable"}
+{"id": "neg-03", "document": "naca-scanned-report", "question": "What jet engine was used in the wind tunnel tests?", "pages": [], "facts": [], "type": "unanswerable"}
