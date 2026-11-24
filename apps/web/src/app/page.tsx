@@ -85,7 +85,7 @@ export default function Home() {
         </a>
       </header>
       {loadError && <div role="alert" className="bg-amber-50 px-4 py-2 text-sm text-amber-800">{loadError}</div>}
-      <main className="flex flex-1 flex-col overflow-y-auto lg:grid lg:grid-cols-[260px_minmax(360px,1fr)_minmax(360px,1.1fr)] lg:overflow-hidden">
+      <main className="flex flex-1 flex-col overflow-y-auto *:shrink-0 lg:grid lg:grid-cols-[260px_minmax(360px,1fr)_minmax(360px,1.1fr)] lg:overflow-hidden">
         <DocumentList
           documents={documents}
           selected={selected}
