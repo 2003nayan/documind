@@ -20,7 +20,11 @@ export default function Home() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [active, setActive] = useState<DocumentDetail | null>(null);
   const [page, setPage] = useState(1);
-  const [highlights, setHighlights] = useState<{ page: number; boxes: BBox[] }>({ page: 0, boxes: [] });
+  const [highlights, setHighlights] = useState<{ docId: string | null; page: number; boxes: BBox[] }>({
+    docId: null,
+    page: 0,
+    boxes: [],
+  });
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -64,7 +68,7 @@ export default function Home() {
     async (c: Citation) => {
       if (active?.id !== c.document_id) await open(c.document_id, c.page_number);
       else setPage(c.page_number);
-      setHighlights({ page: c.page_number, boxes: c.bboxes });
+      setHighlights({ docId: c.document_id, page: c.page_number, boxes: c.bboxes });
     },
     [active, open],
   );
@@ -81,7 +85,7 @@ export default function Home() {
         </a>
       </header>
       {loadError && <div role="alert" className="bg-amber-50 px-4 py-2 text-sm text-amber-800">{loadError}</div>}
-      <main className="grid flex-1 grid-cols-[260px_minmax(360px,1fr)_minmax(360px,1.1fr)] overflow-hidden">
+      <main className="flex flex-1 flex-col overflow-y-auto lg:grid lg:grid-cols-[260px_minmax(360px,1fr)_minmax(360px,1.1fr)] lg:overflow-hidden">
         <DocumentList
           documents={documents}
           selected={selected}
@@ -98,10 +102,10 @@ export default function Home() {
           onOpen={(id) => open(id)}
           onChanged={refresh}
         />
-        <section className="overflow-hidden border-r border-slate-200">
+        <section className="min-h-[80vh] overflow-hidden border-r border-slate-200 lg:min-h-0">
           <Chat documentIds={[...selected]} onCitation={onCitation} suggestions={SUGGESTIONS} />
         </section>
-        <section className="overflow-hidden">
+        <section className="min-h-[80vh] overflow-hidden lg:min-h-0">
           {active ? (
             <PdfViewer
               url={api.fileUrl(active.id)}
@@ -109,7 +113,7 @@ export default function Home() {
               page={page}
               pageCount={active.page_count}
               pageWidthPt={pageInfo?.width}
-              highlights={highlights.page === page ? highlights.boxes : []}
+              highlights={highlights.docId === active.id && highlights.page === page ? highlights.boxes : []}
               onPageChange={(p) => setPage(p)}
             />
           ) : (
