@@ -66,6 +66,22 @@ uv run python eval/run_eval.py       # Recall@5, MRR@10 on eval/gold.jsonl
 uv run python eval/run_eval.py --answers --sleep 6   # + answer match, citation page accuracy, abstention
 ```
 
+## Results
+
+29 hand-labelled questions over the 3 sample PDFs (`eval/gold.jsonl`: scanned, text, table, figure and
+3 unanswerable). Raw outputs are in `eval/results/`.
+
+| Metric | Extractive stand-in | Gemini 3.5 Flash-Lite |
+|---|---|---|
+| Recall@5 (gold page retrieved) | 100% | 100% |
+| MRR@10 | 0.81 | 0.83 |
+| Answer contains expected fact | 65% | 92% |
+| Unanswerable questions refused | 1 / 3 | 3 / 3 |
+| Cited page is a gold page | 77% | 83% |
+| Retrieval p50 / LLM p50 | 8 ms / - | 15 ms / 0.9 s |
+
+Caveat: the gold set is small and was written from the documents, so retrieval scores are optimistic.
+
 ## Free-tier limits
 
 | Service | Free tier | Used for |
