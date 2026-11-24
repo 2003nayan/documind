@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "naca-scanned-report",
+    "title": "NACA technical report (scanned, 1930s)",
+    "category": "scanned",
+    "url": "https://ntrs.nasa.gov/api/citations/19930091542/downloads/19930091542.pdf",
+    "license": "US Government work, public domain (NASA NTRS)",
+    "pages": null
+  },
+  {
+    "slug": "fuel-economy-guide-2024",
+    "title": "Fuel Economy Guide 2024 (US DOE / EPA), first 20 pages",
+    "category": "table-heavy",
+    "url": "https://www.fueleconomy.gov/feg/pdfs/guides/FEG2024.pdf",
+    "license": "US Government work, public domain",
+    "pages": [1, 20]
+  },
+  {
+    "slug": "doe-motor-handbook",
+    "title": "Premium Efficiency Motor Selection and Application Guide (US DOE), first 30 pages",
+    "category": "technical-manual",
+    "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/amo_motors_handbook_web.pdf",
+    "license": "US Government work, public domain",
+    "pages": [1, 30]
+  }
+]

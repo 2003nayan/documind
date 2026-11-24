@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Data and generated files
+datasets/samples/*.pdf
+data/
+processed/
+uploads/
+*.log
+
+# Node
+node_modules/
+.next/
+out/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
