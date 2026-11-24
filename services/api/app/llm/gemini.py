@@ -7,8 +7,13 @@ class GeminiProvider:
 
     def __init__(self, api_key: str, model: str) -> None:
         from google import genai
+        from google.genai import types
 
-        self._client = genai.Client(api_key=api_key)
+        self._client = genai.Client(
+            api_key=api_key,
+            # Fail fast and let the provider chain fall back instead of retrying on a 512 MB host.
+            http_options=types.HttpOptions(timeout=30_000, retry_options=types.HttpRetryOptions(attempts=1)),
+        )
         self.model = model
 
     def generate(self, request: LLMRequest) -> LLMResponse:
