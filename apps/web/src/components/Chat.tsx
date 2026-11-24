@@ -50,7 +50,7 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 space-y-4 overflow-y-auto p-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 && (
           <div className="mx-auto mt-8 max-w-md text-center">
             <h1 className="text-xl font-semibold text-slate-800">Ask your documents</h1>

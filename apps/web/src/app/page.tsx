@@ -102,10 +102,10 @@ export default function Home() {
           onOpen={(id) => open(id)}
           onChanged={refresh}
         />
-        <section className="min-h-[80vh] overflow-hidden border-r border-slate-200 lg:min-h-0">
+        <section className="h-[80vh] overflow-hidden border-r border-slate-200 lg:h-auto">
           <Chat documentIds={[...selected]} onCitation={onCitation} suggestions={SUGGESTIONS} />
         </section>
-        <section className="min-h-[80vh] overflow-hidden lg:min-h-0">
+        <section className="h-[80vh] overflow-hidden lg:h-auto">
           {active ? (
             <PdfViewer
               url={api.fileUrl(active.id)}
