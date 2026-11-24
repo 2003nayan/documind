@@ -59,7 +59,10 @@ class FallbackProvider:
         last: Exception | None = None
         for provider in self.providers:
             try:
-                return provider.generate(request)
+                response = provider.generate(request)
+                if not response.text.strip():
+                    raise LLMError(f"{provider.model} returned an empty response")
+                return response
             except LLMError as exc:
                 last = exc
         raise last or LLMError("No provider configured")
