@@ -1,11 +1,17 @@
 """Download the public sample PDFs listed in datasets/samples.json.
 
 PDFs are not committed to git; this script makes the demo corpus reproducible.
-Usage: uv run python scripts/fetch_samples.py
+Page-range truncation is deterministic (no random PDF /ID, no timestamps), so the
+laptop pipeline and the server image derive the same document ids.
+
+    uv run python scripts/fetch_samples.py
+    uv run python scripts/fetch_samples.py --files-dir data/files   # also stage files for the API
 """
 
+import argparse
 import hashlib
 import json
+import shutil
 import sys
 import urllib.request
 from pathlib import Path
@@ -23,23 +29,36 @@ def fetch(url: str) -> bytes:
         return resp.read()
 
 
+def truncate(data: bytes, first: int, last: int) -> bytes:
+    src = pymupdf.open(stream=data, filetype="pdf")
+    out = pymupdf.open()
+    out.insert_pdf(src, from_page=first - 1, to_page=min(last, src.page_count) - 1)
+    out.set_metadata({})
+    return out.tobytes(garbage=3, deflate=True, no_new_id=True)
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--files-dir", type=Path, help="Also copy PDFs here as <document_id>.pdf")
+    args = parser.parse_args()
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for item in json.loads(MANIFEST.read_text()):
         dest = OUT_DIR / f"{item['slug']}.pdf"
         if dest.exists():
             print(f"skip   {dest.name} (exists)")
-            continue
-        data = fetch(item["url"])
-        if item.get("pages"):
-            first, last = item["pages"]
-            src = pymupdf.open(stream=data, filetype="pdf")
-            out = pymupdf.open()
-            out.insert_pdf(src, from_page=first - 1, to_page=min(last, src.page_count) - 1)
-            data = out.tobytes(garbage=3, deflate=True)
-        dest.write_bytes(data)
-        sha = hashlib.sha256(data).hexdigest()[:12]
-        print(f"saved  {dest.name}  {len(data) / 1e6:.1f} MB  sha256:{sha}")
+        else:
+            data = fetch(item["url"])
+            if item.get("pages"):
+                data = truncate(data, *item["pages"])
+            dest.write_bytes(data)
+        sha = hashlib.sha256(dest.read_bytes()).hexdigest()
+        expected = item.get("sha256")
+        status = "ok" if not expected or expected == sha else f"MISMATCH (expected {expected[:12]})"
+        print(f"{dest.name}  {dest.stat().st_size / 1e6:.1f} MB  sha256:{sha[:12]}  {status}")
+        if args.files_dir:
+            args.files_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(dest, args.files_dir / f"doc_{sha[:16]}.pdf")
     return 0
 
 

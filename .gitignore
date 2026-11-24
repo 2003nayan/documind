@@ -27,3 +27,7 @@ out/
 .vscode/
 .idea/
 .DS_Store
+
+# Eval scratch
+eval/results/*.json
+!eval/results/baseline*.json
