@@ -25,7 +25,11 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
   const [conversationId, setConversationId] = useState<string>();
   const bottom = useRef<HTMLDivElement>(null);
 
-  useEffect(() => bottom.current?.scrollIntoView({ behavior: "smooth" }), [messages, loading]);
+  // Scroll only the message list, never the page (the panels stack on mobile).
+  useEffect(() => {
+    const list = bottom.current?.parentElement;
+    list?.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+  }, [messages, loading]);
 
   async function ask(q: string) {
     if (!q.trim() || loading) return;
