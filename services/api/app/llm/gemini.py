@@ -36,4 +36,6 @@ class GeminiProvider:
             if exc.code == 429:
                 raise QuotaExceededError(str(exc)) from exc
             raise LLMError(str(exc)) from exc
+        except Exception as exc:  # timeouts / transport errors must still reach the fallback chain
+            raise LLMError(f"{type(exc).__name__}: {exc}") from exc
         return LLMResponse(text=resp.text or "", provider=self.name, model=self.model)

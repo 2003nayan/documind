@@ -10,7 +10,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import Settings, get_settings
-from app.llm.base import LLMProvider
+from app.llm.base import FallbackProvider, LLMProvider
 from app.llm.factory import build_providers
 
 
@@ -54,4 +54,5 @@ def get_providers() -> list[LLMProvider]:
 
 
 def get_vision_provider() -> LLMProvider | None:
-    return next((p for p in get_providers() if p.supports_vision), None)
+    vision = [p for p in get_providers() if p.supports_vision]
+    return FallbackProvider(vision) if vision else None
