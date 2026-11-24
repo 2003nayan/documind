@@ -73,7 +73,7 @@ export function DocumentList({ documents, selected, activeId, config, onToggle, 
                       {d.parser === "docling" && <ScanLine className="h-3 w-3" aria-label="layout + OCR" />}
                     </span>
                   </button>
-                  {d.source === "upload" && (
+                  {d.source === "upload" && d.status !== "PROCESSING" && (
                     <button
                       aria-label={`Delete ${d.title}`}
                       className="invisible text-slate-400 hover:text-red-600 group-hover:visible"
