@@ -130,5 +130,5 @@ export const api = {
     });
   },
   remove: (id: string) => request<void>(`/documents/${id}`, { method: "DELETE" }),
-  fileUrl: (id: string) => `/api/documents/${id}/file?session=${sessionId()}`,
+  fileUrl: (id: string) => `/api/documents/${id}/file`,
 };

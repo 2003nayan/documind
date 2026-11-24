@@ -1,11 +1,11 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import type { BBox } from "@/lib/api";
+import { sessionId, type BBox } from "@/lib/api";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
@@ -24,6 +24,8 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
   const [width, setWidth] = useState(600);
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  // Send the session as a header so it never lands in URLs or access logs.
+  const file = useMemo(() => ({ url, httpHeaders: { "X-Session-Id": sessionId() } }), [url]);
 
   useEffect(() => {
     const el = container.current;
@@ -64,7 +66,7 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
         {error ? (
           <p className="text-sm text-red-600">{error}</p>
         ) : (
-          <Document file={url} onLoadError={(e) => setError(`Could not load PDF: ${e.message}`)} loading={<p className="text-sm text-slate-500">Loading PDF...</p>}>
+          <Document file={file} onLoadError={(e) => setError(`Could not load PDF: ${e.message}`)} loading={<p className="text-sm text-slate-500">Loading PDF...</p>}>
             <div className="relative mx-auto w-fit shadow" data-testid="pdf-page">
               <Page pageNumber={page} width={renderWidth} />
               {highlights.map((b, i) => (

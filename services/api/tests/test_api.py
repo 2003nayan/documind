@@ -50,7 +50,10 @@ def test_documents_are_scoped_to_session(client):
     other = client.get("/api/documents", headers={"X-Session-Id": "someone-else"}).json()
     assert other == []
     assert client.get(f"/api/documents/{doc['id']}", headers={"X-Session-Id": "x"}).status_code == 404
-    assert client.get(f"/api/documents/{doc['id']}/file?session=test-session").status_code == 200
+    assert (
+        client.get(f"/api/documents/{doc['id']}/file", headers={"X-Session-Id": "test-session"}).status_code
+        == 200
+    )
 
 
 def test_upload_rejections_and_quota(client):

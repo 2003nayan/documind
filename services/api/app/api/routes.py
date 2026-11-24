@@ -121,10 +121,9 @@ def get_file(
     document_id: str,
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
-    session: str | None = None,
+    x_session_id: str | None = Header(None),
 ) -> FileResponse:
-    # <iframe>/pdf.js requests can't set headers, so the session id may come as a query param.
-    _get_visible(db, document_id, session)
+    _get_visible(db, document_id, x_session_id)
     path = Path(settings.files_dir) / f"{document_id}.pdf"
     if not path.exists():
         raise HTTPException(404, "File is no longer available")
@@ -333,6 +332,8 @@ def delete_document(
     row = _get_visible(db, document_id, x_session_id)
     if row.source == "sample":
         raise HTTPException(403, "Sample documents cannot be deleted")
+    if row.status == "PROCESSING":
+        raise HTTPException(409, "Document is still being indexed; try again when it is ready")
     _purge(db, row, settings)
 
 
