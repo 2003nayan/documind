@@ -37,6 +37,12 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
 
   useEffect(() => setError(null), [url]);
 
+  const firstHighlight = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const t = setTimeout(() => firstHighlight.current?.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+    return () => clearTimeout(t);
+  }, [highlights, page]);
+
   const renderWidth = width * zoom;
   const scale = pageWidthPt ? renderWidth / pageWidthPt : 1;
 
@@ -72,8 +78,9 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
               {highlights.map((b, i) => (
                 <div
                   key={i}
+                  ref={i === 0 ? firstHighlight : undefined}
                   data-testid="citation-highlight"
-                  className="pointer-events-none absolute rounded-sm bg-yellow-300/40 ring-2 ring-yellow-500/70"
+                  className="pointer-events-none absolute rounded-sm bg-indigo-500/10 ring-2 ring-indigo-500/70"
                   style={{
                     left: b.left * scale - 2,
                     top: b.top * scale - 2,
