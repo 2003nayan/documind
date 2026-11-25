@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    LargeBinary,
     String,
     Text,
     create_engine,
@@ -53,6 +54,18 @@ class DocumentRow(Base):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     chunks: Mapped[list["ChunkRow"]] = relationship(back_populates="document", cascade="all, delete-orphan")
+
+
+class DocumentFileRow(Base):
+    """Uploaded PDF bytes. Free hosts have ephemeral disks, so uploads live in the database.
+
+    No FK on purpose: save_document replaces the document row, which must not cascade here.
+    """
+
+    __tablename__ = "document_files"
+
+    document_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    data: Mapped[bytes] = mapped_column(LargeBinary)
 
 
 class ChunkRow(Base):

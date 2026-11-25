@@ -80,6 +80,9 @@ def test_chat_quota_and_not_found(client):
 def test_delete_upload(client):
     doc = _upload(client, [MOTOR])
     _wait_ready(client, doc["id"])
+    # Stored in the DB (free hosts have ephemeral disks), not as a file.
+    pdf = client.get(f"/api/documents/{doc['id']}/file", headers={"X-Session-Id": "test-session"})
+    assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
     assert client.delete(f"/api/documents/{doc['id']}").status_code == 204
     assert client.get(f"/api/documents/{doc['id']}").status_code == 404
 
