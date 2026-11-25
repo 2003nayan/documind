@@ -8,7 +8,7 @@ class Settings(CoreSettings):
 
     llm_provider: str = "extractive"
     llm_fallback_provider: str | None = None
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.5-flash-lite,gemini-3.5-flash"
     openrouter_api_key: str | None = None
     openrouter_model: str | None = None
 

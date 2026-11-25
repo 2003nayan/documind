@@ -5,6 +5,7 @@ not retrieved, or whose quote does not appear in that source, is discarded.
 """
 
 import json
+import logging
 import re
 import time
 from dataclasses import dataclass, field
@@ -13,6 +14,8 @@ from difflib import SequenceMatcher
 from documind_core.schemas import Chunk
 
 from app.llm.base import LLMError, LLMProvider, LLMRequest, QuotaExceededError
+
+log = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are DocuMind, a document question-answering assistant.
 Answer ONLY from the numbered sources provided. Never use outside knowledge.
@@ -76,6 +79,7 @@ def answer_question(
             response = provider.generate(request)
             break
         except (QuotaExceededError, LLMError) as exc:
+            log.warning("LLM %s/%s failed, trying next: %s", provider.name, provider.model, str(exc)[:200])
             last_error = exc
     if response is None:
         raise last_error or LLMError("No LLM provider configured")

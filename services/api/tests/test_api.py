@@ -50,7 +50,10 @@ def test_documents_are_scoped_to_session(client):
     other = client.get("/api/documents", headers={"X-Session-Id": "someone-else"}).json()
     assert other == []
     assert client.get(f"/api/documents/{doc['id']}", headers={"X-Session-Id": "x"}).status_code == 404
-    assert client.get(f"/api/documents/{doc['id']}/file?session=test-session").status_code == 200
+    assert (
+        client.get(f"/api/documents/{doc['id']}/file", headers={"X-Session-Id": "test-session"}).status_code
+        == 200
+    )
 
 
 def test_upload_rejections_and_quota(client):
@@ -77,6 +80,9 @@ def test_chat_quota_and_not_found(client):
 def test_delete_upload(client):
     doc = _upload(client, [MOTOR])
     _wait_ready(client, doc["id"])
+    # Stored in the DB (free hosts have ephemeral disks), not as a file.
+    pdf = client.get(f"/api/documents/{doc['id']}/file", headers={"X-Session-Id": "test-session"})
+    assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
     assert client.delete(f"/api/documents/{doc['id']}").status_code == 204
     assert client.get(f"/api/documents/{doc['id']}").status_code == 404
 
@@ -84,3 +90,21 @@ def test_delete_upload(client):
 def test_config_and_health(client):
     assert client.get("/api/health").json() == {"status": "ok"}
     assert client.get("/api/config").json()["vision_enabled"] is False
+
+
+def test_delete_refuses_processing_and_samples(client):
+    from app.api import routes
+    from documind_core.db import DocumentRow
+
+    doc = _upload(client, [MOTOR])
+    _wait_ready(client, doc["id"])
+    for field, value, code in (("status", "PROCESSING", 409), ("source", "sample", 403)):
+        with routes.get_session_factory()() as s:
+            row = s.get(DocumentRow, doc["id"])
+            original = getattr(row, field)
+            setattr(row, field, value)
+            s.commit()
+        assert client.delete(f"/api/documents/{doc['id']}").status_code == code
+        with routes.get_session_factory()() as s:
+            setattr(s.get(DocumentRow, doc["id"]), field, original)
+            s.commit()

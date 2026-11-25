@@ -4,11 +4,11 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from documind_core.db import ChunkRow, ConversationRow, DocumentRow, MessageRow
+from documind_core.db import ChunkRow, ConversationRow, DocumentFileRow, DocumentRow, MessageRow
 from documind_core.indexing import index_document
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Header, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -121,14 +121,16 @@ def get_file(
     document_id: str,
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
-    session: str | None = None,
-) -> FileResponse:
-    # <iframe>/pdf.js requests can't set headers, so the session id may come as a query param.
-    _get_visible(db, document_id, session)
+    x_session_id: str | None = Header(None),
+) -> Response:
+    _get_visible(db, document_id, x_session_id)
     path = Path(settings.files_dir) / f"{document_id}.pdf"
-    if not path.exists():
+    if path.exists():
+        return FileResponse(path, media_type="application/pdf")
+    stored = db.get(DocumentFileRow, document_id)
+    if stored is None:
         raise HTTPException(404, "File is no longer available")
-    return FileResponse(path, media_type="application/pdf")
+    return Response(stored.data, media_type="application/pdf")
 
 
 @router.get("/documents/{document_id}/chunks", response_model=list[ChunkOut])
@@ -272,9 +274,7 @@ async def upload_document(
     if existing is not None and existing.source == "sample":
         return UploadResponse(document=_doc_out(existing), warnings=["This document is already a sample."])
 
-    files_dir = Path(settings.files_dir)
-    files_dir.mkdir(parents=True, exist_ok=True)
-    (files_dir / f"{doc.document_id}.pdf").write_bytes(data)
+    db.merge(DocumentFileRow(document_id=doc.document_id, data=data))
     expires = datetime.now(UTC) + timedelta(hours=settings.upload_ttl_hours)
     row = DocumentRow(
         id=doc.document_id,
@@ -333,12 +333,17 @@ def delete_document(
     row = _get_visible(db, document_id, x_session_id)
     if row.source == "sample":
         raise HTTPException(403, "Sample documents cannot be deleted")
+    if row.status == "PROCESSING":
+        raise HTTPException(409, "Document is still being indexed; try again when it is ready")
     _purge(db, row, settings)
 
 
 def _purge(db: Session, row: DocumentRow, settings: Settings) -> None:
     get_store().delete_document(row.id)
     (Path(settings.files_dir) / f"{row.id}.pdf").unlink(missing_ok=True)
+    stored = db.get(DocumentFileRow, row.id)
+    if stored is not None:
+        db.delete(stored)
     db.delete(row)
     db.commit()
 

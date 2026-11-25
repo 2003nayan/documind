@@ -1,0 +1,575 @@
+{
+ "summary": {
+  "questions": 29,
+  "answerable": 26,
+  "recall@5": 1.0,
+  "mrr@10": 0.827,
+  "retrieval_ms_p50": 14.6,
+  "by_type": {
+   "figure": {
+    "n": 3,
+    "recall@5": 1.0
+   },
+   "scanned": {
+    "n": 8,
+    "recall@5": 1.0
+   },
+   "table": {
+    "n": 2,
+    "recall@5": 1.0
+   },
+   "text": {
+    "n": 13,
+    "recall@5": 1.0
+   }
+  },
+  "answer_match": 0.923,
+  "answered": 0.923,
+  "abstention": 1.0,
+  "citation_page_accuracy": 0.833,
+  "citations_total": 24,
+  "citations_dropped": 1,
+  "llm_ms_p50": 881
+ },
+ "rows": [
+  {
+   "id": "naca-01",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    1,
+    3,
+    5
+   ],
+   "rank": 2,
+   "retrieval_ms": 381.3,
+   "found": false,
+   "answer": "I couldn't find this in the selected documents.",
+   "citation_pages": [],
+   "citations": 0,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 758
+  },
+  {
+   "id": "naca-02",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    1,
+    3,
+    5
+   ],
+   "rank": 1,
+   "retrieval_ms": 11.3,
+   "found": true,
+   "answer": "The authors of the report on the interference between struts are David Biermann and William H. Herrnstein, Jr.",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 835
+  },
+  {
+   "id": "naca-03",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    2
+   ],
+   "rank": 1,
+   "retrieval_ms": 14.2,
+   "found": true,
+   "answer": "The standard acceleration of gravity is given as 9.80665 m/s\u00b2 or 32.1740 ft./sec.\u00b2.",
+   "citation_pages": [
+    2
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 851
+  },
+  {
+   "id": "naca-04",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    2
+   ],
+   "rank": 1,
+   "retrieval_ms": 14.5,
+   "found": true,
+   "answer": "The specific weight of standard air is 1.2255 kg/m\u00b3 or 0.07651 lb./ft.\u00b3.",
+   "citation_pages": [
+    2
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 13140
+  },
+  {
+   "id": "naca-05",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    5
+   ],
+   "rank": 1,
+   "retrieval_ms": 29.7,
+   "found": true,
+   "answer": "The strut interference tests were conducted in the N.A.C.A. 7- by 10-foot wind tunnel.",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 5173
+  },
+  {
+   "id": "naca-06",
+   "type": "figure",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 15.3,
+   "found": true,
+   "answer": "For Navy no. 1 struts, minimum drag occurs at a fineness ratio of about 5.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 815
+  },
+  {
+   "id": "naca-07",
+   "type": "figure",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 16.3,
+   "found": true,
+   "answer": "The drag tests for the Navy no. 1 struts of various fineness ratios were conducted at an air speed of 80 m.p.h. and a Reynolds Number of 420,000.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 717
+  },
+  {
+   "id": "naca-08",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    9
+   ],
+   "rank": 3,
+   "retrieval_ms": 31.5,
+   "found": true,
+   "answer": "For cylinders spaced side by side, the interference drag increases very rapidly for spacings less than 1.25 diameters.",
+   "citation_pages": [
+    9
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 708
+  },
+  {
+   "id": "naca-09",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    7
+   ],
+   "rank": 1,
+   "retrieval_ms": 15.3,
+   "found": true,
+   "answer": "The strut used to test a strut intersecting a plane had dimensions of 2.25 by 6.75 inches and a length of 23 inches.",
+   "citation_pages": [
+    7
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 997
+  },
+  {
+   "id": "naca-10",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    4
+   ],
+   "rank": 1,
+   "retrieval_ms": 17.8,
+   "found": true,
+   "answer": "The National Advisory Committee for Aeronautics was created by an act of Congress approved on March 3, 1915.",
+   "citation_pages": [
+    4
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 936
+  },
+  {
+   "id": "fuel-01",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    5
+   ],
+   "rank": 1,
+   "retrieval_ms": 15.5,
+   "found": true,
+   "answer": "You may be eligible for a federal income tax credit of up to $7,500 for purchasing a qualifying all-electric vehicle, plug-in hybrid, or fuel cell vehicle in 2023-2024.",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 881
+  },
+  {
+   "id": "fuel-02",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    7
+   ],
+   "rank": 1,
+   "retrieval_ms": 32.1,
+   "found": true,
+   "answer": "There are more than 59,000 public charging stations available across the country.",
+   "citation_pages": [
+    7
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 819
+  },
+  {
+   "id": "fuel-03",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    7
+   ],
+   "rank": 1,
+   "retrieval_ms": 19.5,
+   "found": true,
+   "answer": "Level 1 charging uses a regular 120-volt (V) outlet, such as the standard outlet found in a home.",
+   "citation_pages": [
+    7
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 14513
+  },
+  {
+   "id": "fuel-04",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 9.9,
+   "found": true,
+   "answer": "Aggressive driving (such as speeding, rapid acceleration, and hard braking) can lower your gas mileage by roughly 15% to 30% at highway speeds.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 11924
+  },
+  {
+   "id": "fuel-05",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 10.2,
+   "found": true,
+   "answer": "Each 5 MPH that you drive over 60 MPH can reduce your fuel economy by 7%.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 798
+  },
+  {
+   "id": "fuel-06",
+   "type": "figure",
+   "answerable": true,
+   "pages": [
+    10
+   ],
+   "rank": 1,
+   "retrieval_ms": 18.9,
+   "found": true,
+   "answer": "The assumed price for regular unleaded gasoline is $3.81 per gallon.",
+   "citation_pages": [
+    10
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 21820
+  },
+  {
+   "id": "fuel-07",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    10
+   ],
+   "rank": 2,
+   "retrieval_ms": 9.7,
+   "found": true,
+   "answer": "The annual fuel cost estimates assume that you travel 15,000 miles per year.",
+   "citation_pages": [
+    2
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 6689
+  },
+  {
+   "id": "fuel-08",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    6
+   ],
+   "rank": 1,
+   "retrieval_ms": 11.6,
+   "found": true,
+   "answer": "E10 is a blend of 10% ethanol and 90% gasoline. It is legal to use in any gasoline-powered vehicle.",
+   "citation_pages": [
+    6
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 16240
+  },
+  {
+   "id": "fuel-09",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    3
+   ],
+   "rank": 1,
+   "retrieval_ms": 12.7,
+   "found": true,
+   "answer": "Light-duty fuel economy regulations do not apply to sport utility vehicles (SUVs) with a gross vehicle weight rating (GVWR) of more than 10,000 pounds.",
+   "citation_pages": [
+    3
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 16946
+  },
+  {
+   "id": "doe-01",
+   "type": "table",
+   "answerable": true,
+   "pages": [
+    15
+   ],
+   "rank": 2,
+   "retrieval_ms": 10.3,
+   "found": true,
+   "answer": "In the industrial sector, approximately 62.5% of the total electrical energy use is dedicated to motor-driven equipment.",
+   "citation_pages": [
+    14
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 911
+  },
+  {
+   "id": "doe-02",
+   "type": "table",
+   "answerable": true,
+   "pages": [
+    15
+   ],
+   "rank": 2,
+   "retrieval_ms": 27.6,
+   "found": false,
+   "answer": "I couldn't find this in the selected documents.",
+   "citation_pages": [],
+   "citations": 0,
+   "dropped": 1,
+   "answer_match": false,
+   "llm_ms": 30248
+  },
+  {
+   "id": "doe-03",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    16
+   ],
+   "rank": 2,
+   "retrieval_ms": 12.2,
+   "found": true,
+   "answer": "The total U.S. motor stock was estimated at 24.0 million motors in 2006.",
+   "citation_pages": [
+    16
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 935
+  },
+  {
+   "id": "doe-04",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    20
+   ],
+   "rank": 1,
+   "retrieval_ms": 20.2,
+   "found": true,
+   "answer": "Downsizing an oversized and underloaded motor should be considered when it is operating at less than 40% of its rated output.",
+   "citation_pages": [
+    20
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 762
+  },
+  {
+   "id": "doe-05",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    19
+   ],
+   "rank": 3,
+   "retrieval_ms": 14.6,
+   "found": true,
+   "answer": "By 2006, energy efficient motor sales comprised 50% of units sold.",
+   "citation_pages": [
+    18
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 892
+  },
+  {
+   "id": "doe-06",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    3
+   ],
+   "rank": 3,
+   "retrieval_ms": 16.2,
+   "found": true,
+   "answer": "The Copper Development Association (CDA) supported the U.S. Department of Energy (DOE) in developing the Premium Efficiency Motor Selection and Application Guide.",
+   "citation_pages": [
+    3
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 818
+  },
+  {
+   "id": "doe-07",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    12
+   ],
+   "rank": 1,
+   "retrieval_ms": 10.9,
+   "found": true,
+   "answer": "ASD stands for adjustable speed drive.",
+   "citation_pages": [
+    9
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 769
+  },
+  {
+   "id": "neg-01",
+   "type": "unanswerable",
+   "answerable": false,
+   "pages": [],
+   "rank": null,
+   "retrieval_ms": 11.2,
+   "found": false,
+   "answer": "I couldn't find this in the selected documents.",
+   "citation_pages": [],
+   "citations": 0,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 839
+  },
+  {
+   "id": "neg-02",
+   "type": "unanswerable",
+   "answerable": false,
+   "pages": [],
+   "rank": null,
+   "retrieval_ms": 12.0,
+   "found": false,
+   "answer": "I couldn't find this in the selected documents.",
+   "citation_pages": [],
+   "citations": 0,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 758
+  },
+  {
+   "id": "neg-03",
+   "type": "unanswerable",
+   "answerable": false,
+   "pages": [],
+   "rank": null,
+   "retrieval_ms": 9.4,
+   "found": false,
+   "answer": "I couldn't find this in the selected documents.",
+   "citation_pages": [],
+   "citations": 0,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 642
+  }
+ ]
+}

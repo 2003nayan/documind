@@ -98,7 +98,12 @@ def ingest_samples(
         pdf = SAMPLES_DIR / f"{item['slug']}.pdf"
         if not pdf.exists():
             raise typer.BadParameter(f"{pdf} missing; run `uv run python scripts/fetch_samples.py` first")
-        parsed = PROCESSED_DIR / f"{document_id_for(sha256_bytes(pdf.read_bytes()))}.json"
+        sha = sha256_bytes(pdf.read_bytes())
+        if item.get("sha256") and item["sha256"] != sha:
+            raise typer.BadParameter(
+                f"{pdf.name} does not match the pinned sha256; delete it and re-run fetch_samples.py"
+            )
+        parsed = PROCESSED_DIR / f"{document_id_for(sha)}.json"
         if reparse or not parsed.exists():
             parsed = _parse(pdf, ocr, PROCESSED_DIR)
         _index(parsed, item.get("title"), files_dir, pdf)

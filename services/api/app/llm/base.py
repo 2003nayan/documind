@@ -44,3 +44,25 @@ class LLMProvider(Protocol):
     supports_vision: bool
 
     def generate(self, request: LLMRequest) -> LLMResponse: ...
+
+
+class FallbackProvider:
+    """Tries each provider in order; used where a single provider is expected (vision OCR)."""
+
+    def __init__(self, providers: list[LLMProvider]) -> None:
+        self.providers = providers
+        self.name = providers[0].name
+        self.model = providers[0].model
+        self.supports_vision = all(p.supports_vision for p in providers)
+
+    def generate(self, request: LLMRequest) -> LLMResponse:
+        last: Exception | None = None
+        for provider in self.providers:
+            try:
+                response = provider.generate(request)
+                if not response.text.strip():
+                    raise LLMError(f"{provider.model} returned an empty response")
+                return response
+            except LLMError as exc:
+                last = exc
+        raise last or LLMError("No provider configured")

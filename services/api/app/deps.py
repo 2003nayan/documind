@@ -10,8 +10,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import Settings, get_settings
-from app.llm.base import LLMProvider
-from app.llm.factory import build_provider
+from app.llm.base import FallbackProvider, LLMProvider
+from app.llm.factory import build_providers
 
 
 @lru_cache
@@ -50,9 +50,9 @@ def get_store() -> VectorStore:
 @lru_cache
 def get_providers() -> list[LLMProvider]:
     s: Settings = get_settings()
-    providers = [build_provider(s.llm_provider, s), build_provider(s.llm_fallback_provider, s)]
-    return [p for p in providers if p is not None]
+    return build_providers(s.llm_provider, s) + build_providers(s.llm_fallback_provider, s)
 
 
 def get_vision_provider() -> LLMProvider | None:
-    return next((p for p in get_providers() if p.supports_vision), None)
+    vision = [p for p in get_providers() if p.supports_vision]
+    return FallbackProvider(vision) if vision else None

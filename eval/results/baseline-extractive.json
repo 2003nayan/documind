@@ -1,0 +1,583 @@
+{
+ "summary": {
+  "questions": 29,
+  "answerable": 26,
+  "recall@5": 1.0,
+  "mrr@10": 0.808,
+  "retrieval_ms_p50": 8.3,
+  "by_type": {
+   "figure": {
+    "n": 3,
+    "recall@5": 1.0
+   },
+   "scanned": {
+    "n": 8,
+    "recall@5": 1.0
+   },
+   "table": {
+    "n": 2,
+    "recall@5": 1.0
+   },
+   "text": {
+    "n": 13,
+    "recall@5": 1.0
+   }
+  },
+  "answer_match": 0.654,
+  "answered": 1.0,
+  "abstention": 0.333,
+  "citation_page_accuracy": 0.769,
+  "citations_total": 26,
+  "citations_dropped": 0,
+  "llm_ms_p50": 0
+ },
+ "rows": [
+  {
+   "id": "naca-01",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    1,
+    3,
+    5
+   ],
+   "rank": 2,
+   "retrieval_ms": 368.9,
+   "found": true,
+   "answer": "Although these tests furnish some interesting and usable data on the interference of struts in various combinations, this particular branch of the study of interference deserves much more consideration.",
+   "citation_pages": [
+    12
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 1
+  },
+  {
+   "id": "naca-02",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    1,
+    3,
+    5
+   ],
+   "rank": 1,
+   "retrieval_ms": 14.7,
+   "found": true,
+   "answer": "THE INTERFERENCE BETWEEN STRUTS IN VARIOUS COMBINATIONS",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-03",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    2
+   ],
+   "rank": 1,
+   "retrieval_ms": 9.4,
+   "found": true,
+   "answer": "g, Standard acceleration of gravity =9.80665 m/s\u00b2=32.1740 ft./sec.2",
+   "citation_pages": [
+    2
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-04",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    2
+   ],
+   "rank": 1,
+   "retrieval_ms": 11.1,
+   "found": true,
+   "answer": "Specific weight of \"standard\" air, 1.2255 kg/m\u00b3=0.07651 lb./ft.3.",
+   "citation_pages": [
+    2
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-05",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    5
+   ],
+   "rank": 1,
+   "retrieval_ms": 11.6,
+   "found": true,
+   "answer": "7- by 10-foot wind tunnel in which these tests were made is completely described with its",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-06",
+   "type": "figure",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 13.5,
+   "found": true,
+   "answer": "Figure 3, which is only incidental to the present report, shows the relation between CD and fineness ratio for Navy no.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-07",
+   "type": "figure",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 11.1,
+   "found": true,
+   "answer": "Another significant fact is that each size of strut defines a separate curve, suggesting a Reynolds Number effect; but with the exception of struts spaced very close together, the drag coefficient is constant for all air speeds for each strut size, indicating the reason for the difference to be elsewhere.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-08",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    9
+   ],
+   "rank": 3,
+   "retrieval_ms": 8.9,
+   "found": true,
+   "answer": "For spacings less than 1.25 diameters the interference drag increases very rapidly with decreases in spacing.",
+   "citation_pages": [
+    9
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-09",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    7
+   ],
+   "rank": 1,
+   "retrieval_ms": 9.5,
+   "found": true,
+   "answer": "A strut intersecting a plane.\u2014Tests were made to determine the interference drag arising from a 2.25by 6.75-inch strut, 23 inches long, intersecting the surface of the flat-sided section previously used for fairing tandem struts.",
+   "citation_pages": [
+    7
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "naca-10",
+   "type": "scanned",
+   "answerable": true,
+   "pages": [
+    4
+   ],
+   "rank": 1,
+   "retrieval_ms": 9.6,
+   "found": true,
+   "answer": "NATIONAL ADVISORY COMMITTEE FOR AERONAUTICS",
+   "citation_pages": [
+    4
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "fuel-01",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    5
+   ],
+   "rank": 1,
+   "retrieval_ms": 8.3,
+   "found": true,
+   "answer": "You may be eligible for a federal income tax credit of up to $7,500 if you purchase a qualifying all-electric vehicle (EV), plug-in hybrid, or fuel cell vehicle in 2023-2024.",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 1
+  },
+  {
+   "id": "fuel-02",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    7
+   ],
+   "rank": 1,
+   "retrieval_ms": 7.3,
+   "found": true,
+   "answer": "Some workplaces, businesses, and multi-unit dwellings (condos/apartments) provide charging, and more than 59,000 public charging stations with over 150,000 charging ports are available across the country.",
+   "citation_pages": [
+    7
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "fuel-03",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    7
+   ],
+   "rank": 1,
+   "retrieval_ms": 6.3,
+   "found": true,
+   "answer": "Level 1 charging: You can plug into a regular 120-volt (V) outletthe kind found in your home.",
+   "citation_pages": [
+    7
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 1
+  },
+  {
+   "id": "fuel-04",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 9.0,
+   "found": true,
+   "answer": "Aggressive driving (speeding and rapid acceleration/braking) can lower your gas mileage by roughly 15%-30% at highway speeds and 10%-40% in stop-and-go traffic.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "fuel-05",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    8
+   ],
+   "rank": 1,
+   "retrieval_ms": 7.1,
+   "found": true,
+   "answer": "Each 5 MPH you drive over 60 MPH can reduce your fuel economy by 7%.",
+   "citation_pages": [
+    8
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "fuel-06",
+   "type": "figure",
+   "answerable": true,
+   "pages": [
+    10
+   ],
+   "rank": 1,
+   "retrieval_ms": 8.8,
+   "found": true,
+   "answer": "Annual fuel costs assume that you travel 15,000 miles each year, drive 55% in the city and 45% on the highway, and that fuel costs $3.81/ gallon for regular unleaded gasoline, $4.83/gallon for premium, $5.94/gallon for diesel, and $0.15/kWh for electricity.",
+   "citation_pages": [
+    10
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "fuel-07",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    10
+   ],
+   "rank": 2,
+   "retrieval_ms": 7.3,
+   "found": true,
+   "answer": "The estimates are based on the assumptions that you travel 15,000 miles per year (55% under city driving conditions and 45% under highway conditions) and that fuel costs $3.81/gallon for regular unleaded gasoline, $4.44/gallon for mid-grade unleaded gasoline, and $4.83/gallon for premium.",
+   "citation_pages": [
+    2
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "fuel-08",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    6
+   ],
+   "rank": 1,
+   "retrieval_ms": 7.1,
+   "found": true,
+   "answer": "E10 is a blend of 10% ethanol and 90% gasoline and is legal for use in any gasoline-powered vehicle.",
+   "citation_pages": [
+    6
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 1
+  },
+  {
+   "id": "fuel-09",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    3
+   ],
+   "rank": 1,
+   "retrieval_ms": 10.1,
+   "found": true,
+   "answer": "Light-duty fuel economy regulations do not apply to",
+   "citation_pages": [
+    3
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-01",
+   "type": "table",
+   "answerable": true,
+   "pages": [
+    15
+   ],
+   "rank": 2,
+   "retrieval_ms": 7.3,
+   "found": true,
+   "answer": "Within the industrial sector, about 62.5% of the total electrical energy use is for motor-driven equipment.",
+   "citation_pages": [
+    14
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-02",
+   "type": "table",
+   "answerable": true,
+   "pages": [
+    15
+   ],
+   "rank": 2,
+   "retrieval_ms": 7.9,
+   "found": true,
+   "answer": "| Sector      |   Total Electrical Energy Use for Sector, Million kWh/year1, 2006 |   Annual Motor- Driven System Energy Use, Million kWh/year |   Percentage of Sector Use by Motor-Driven Equipment |   Percentage of Total Motor-Driven Equipment Energy Use |",
+   "citation_pages": [
+    15
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-03",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    16
+   ],
+   "rank": 2,
+   "retrieval_ms": 7.5,
+   "found": true,
+   "answer": "motor stock was estimated at 24.0 million motors in 2006.[1-1, 1-3] Table 1-3 provides the number of motors, annual energy use, and percentage of total manufacturing energy use by motor horsepower size range.",
+   "citation_pages": [
+    16
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-04",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    20
+   ],
+   "rank": 1,
+   "retrieval_ms": 7.2,
+   "found": true,
+   "answer": "To replace oversized and underloaded motors (consider downsizing when a motor is operating at less than 40% of its rated output)",
+   "citation_pages": [
+    20
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-05",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    19
+   ],
+   "rank": 3,
+   "retrieval_ms": 6.5,
+   "found": true,
+   "answer": "Between 2001 and 2006, standard efficiency motors comprised about 25% of units sold, with the percentage of premium efficiency motors gradually increasing to a market share of about 25%.",
+   "citation_pages": [
+    18
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-06",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    3
+   ],
+   "rank": 3,
+   "retrieval_ms": 7.5,
+   "found": true,
+   "answer": "The Premium Efficiency Motor Selection and Application Guide and Continuous Energy Improvement for MotorDriven Systems were developed and are supported through DOE's Advanced Manufacturing Office (AMO).",
+   "citation_pages": [
+    20
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "doe-07",
+   "type": "text",
+   "answerable": true,
+   "pages": [
+    12
+   ],
+   "rank": 2,
+   "retrieval_ms": 6.4,
+   "found": true,
+   "answer": "adjustable speed drive (ASD) - An electric drive designed to provide easily operable means for speed adjustment of the motor, within a specified speed range.",
+   "citation_pages": [
+    9
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": true,
+   "llm_ms": 0
+  },
+  {
+   "id": "neg-01",
+   "type": "unanswerable",
+   "answerable": false,
+   "pages": [],
+   "rank": null,
+   "retrieval_ms": 11.5,
+   "found": false,
+   "answer": "I couldn't find this in the selected documents.",
+   "citation_pages": [],
+   "citations": 0,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 2
+  },
+  {
+   "id": "neg-02",
+   "type": "unanswerable",
+   "answerable": false,
+   "pages": [],
+   "rank": null,
+   "retrieval_ms": 7.3,
+   "found": true,
+   "answer": "A premium efficiency motor is usually 0.5% to 2.0% more efficient (depending upon size, utilization voltage, and operating speed) than when the same motor is driven by a 50-Hz power supply.2-9",
+   "citation_pages": [
+    28
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  },
+  {
+   "id": "neg-03",
+   "type": "unanswerable",
+   "answerable": false,
+   "pages": [],
+   "rank": null,
+   "retrieval_ms": 7.2,
+   "found": true,
+   "answer": "Three sizes of struts were used throughout the program, with some exceptions, to determine if possible to what extent the rules of dynamic similarity may be applied to interference tests in wind tunnels.",
+   "citation_pages": [
+    5
+   ],
+   "citations": 1,
+   "dropped": 0,
+   "answer_match": false,
+   "llm_ms": 0
+  }
+ ]
+}

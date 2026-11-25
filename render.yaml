@@ -1,0 +1,25 @@
+# Render Blueprint for the API (free plan, 512 MB, sleeps after 15 min idle).
+# Secrets are set in the Render dashboard, never committed.
+services:
+  - type: web
+    name: documind-api
+    runtime: docker
+    plan: free
+    dockerfilePath: services/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: LLM_FALLBACK_PROVIDER
+        value: extractive
+      - key: CORS_ORIGINS
+        sync: false
