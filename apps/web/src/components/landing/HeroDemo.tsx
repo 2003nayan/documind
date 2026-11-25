@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import { BadgeCheck, FileText, Search, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Box = { left: number; top: number; right: number; bottom: number };
 
@@ -57,6 +57,8 @@ export function HeroDemo() {
   const [phase, setPhase] = useState<Phase>("typing");
   const [n, setN] = useState(0);
   const [reduced, setReduced] = useState(false);
+  const viewport = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
   const ex = EXAMPLES[index];
   const words = ex.answer.split(" ");
 
@@ -65,6 +67,14 @@ export function HeroDemo() {
       setReduced(true);
       setPhase("cited");
     }
+  }, []);
+
+  useEffect(() => {
+    const el = viewport.current;
+    if (!el) return;
+    const obs = new ResizeObserver(() => setSize({ w: el.clientWidth, h: el.clientHeight }));
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
   useEffect(() => {
@@ -92,8 +102,12 @@ export function HeroDemo() {
   const ys = ex.boxes.flatMap((b) => [b.top, b.bottom]);
   const cx = ((Math.min(...xs) + Math.max(...xs)) / 2 / ex.w) * 100;
   const cy = ((Math.min(...ys) + Math.max(...ys)) / 2 / ex.h) * 100;
-  // Zoom in as far as the cited region still fits the viewport.
+  // Zoom in as far as the cited region still fits, then pan it to the viewport centre (clamped to the page).
   const zoom = Math.min(1.9, 0.85 / ((Math.max(...xs) - Math.min(...xs)) / ex.w));
+  const pageH = (size.w * ex.h) / ex.w;
+  const clamp = (v: number, lo: number) => Math.min(0, Math.max(lo, v));
+  const tx = clamp(size.w / 2 - (cx / 100) * size.w * zoom, size.w - size.w * zoom);
+  const ty = clamp(size.h / 2 - (cy / 100) * pageH * zoom, size.h - pageH * zoom);
 
   return (
     <div className="relative mx-auto max-w-5xl">
@@ -149,13 +163,13 @@ export function HeroDemo() {
               <span>Page {ex.page}</span>
               <span className={clsx("transition-opacity", cited ? "opacity-100" : "opacity-0")}>Jumped to cited region</span>
             </div>
-            <div className="relative h-[300px] overflow-hidden rounded-lg bg-white shadow-inner sm:h-[380px]">
+            <div ref={viewport} className="relative h-[300px] overflow-hidden rounded-lg bg-white shadow-inner sm:h-[380px]">
               <div
                 className="relative w-full transition-transform duration-[1400ms] ease-out motion-reduce:transition-none"
                 style={{
                   aspectRatio: `${ex.w} / ${ex.h}`,
-                  transformOrigin: `${cx}% ${cy}%`,
-                  transform: cited ? `scale(${zoom})` : "scale(1)",
+                  transformOrigin: "0 0",
+                  transform: cited ? `translate(${tx}px, ${ty}px) scale(${zoom})` : "none",
                 }}
               >
                 <Image key={ex.img} src={ex.img} alt={`${ex.doc}, page ${ex.page}`} fill sizes="(min-width: 768px) 480px, 100vw" className="object-cover" priority />
