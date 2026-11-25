@@ -132,6 +132,10 @@ class UsageCounterRow(Base):
 
 
 def make_engine(url: str) -> Engine:
+    # Hosted Postgres (Neon) hands out plain postgresql:// URLs; we ship psycopg 3, not psycopg2.
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            url = "postgresql+psycopg://" + url.removeprefix(prefix)
     connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
     return create_engine(url, pool_pre_ping=True, connect_args=connect_args)
 
