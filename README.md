@@ -3,6 +3,9 @@
 Ask questions about technical manuals, scanned reports and table-heavy documents, and get answers whose
 citations point to the exact page and region, **verified server-side** against the retrieved text.
 
+**Live demo:** https://documind-ebon-one.vercel.app (project overview at `/`, the app at `/app`). The backend runs on
+Render's free tier, so the first request after 15 minutes idle can take up to a minute.
+
 Runs on free tiers only: no paid services, no credit card.
 
 ## Architecture

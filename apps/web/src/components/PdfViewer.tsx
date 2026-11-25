@@ -15,11 +15,13 @@ type Props = {
   page: number;
   pageCount: number;
   highlights: BBox[];
+  /** Bumped on every citation click, so re-clicking the same citation scrolls back to it. */
+  highlightSeq?: number;
   pageWidthPt?: number;
   onPageChange: (page: number) => void;
 };
 
-export default function PdfViewer({ url, title, page, pageCount, highlights, pageWidthPt, onPageChange }: Props) {
+export default function PdfViewer({ url, title, page, pageCount, highlights, highlightSeq, pageWidthPt, onPageChange }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
   const [zoom, setZoom] = useState(1);
@@ -36,6 +38,12 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
   }, []);
 
   useEffect(() => setError(null), [url]);
+
+  const firstHighlight = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const t = setTimeout(() => firstHighlight.current?.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+    return () => clearTimeout(t);
+  }, [highlights, highlightSeq, page]);
 
   const renderWidth = width * zoom;
   const scale = pageWidthPt ? renderWidth / pageWidthPt : 1;
@@ -72,8 +80,9 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
               {highlights.map((b, i) => (
                 <div
                   key={i}
+                  ref={i === 0 ? firstHighlight : undefined}
                   data-testid="citation-highlight"
-                  className="pointer-events-none absolute rounded-sm bg-yellow-300/40 ring-2 ring-yellow-500/70"
+                  className="pointer-events-none absolute rounded-sm bg-indigo-500/10 ring-2 ring-indigo-500/70"
                   style={{
                     left: b.left * scale - 2,
                     top: b.top * scale - 2,

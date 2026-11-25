@@ -19,13 +19,25 @@ export function DocumentList({ documents, selected, activeId, config, onToggle, 
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const pending = documents.find((d) => d.id === pendingId);
+  const status =
+    pending?.status === "PROCESSING"
+      ? `Indexing ${pending.title}...`
+      : pending?.status === "FAILED"
+        ? `Indexing ${pending.title} failed.`
+        : pending?.status === "READY"
+          ? `${pending.title} is ready.`
+          : null;
 
   async function upload(file: File) {
     setBusy(true);
     setMessage(null);
+    setPendingId(null);
     try {
       const res = await api.upload(file);
-      setMessage(res.warnings.join(" ") || `Uploaded ${res.document.title}; indexing...`);
+      setMessage(res.warnings.join(" ") || null);
+      setPendingId(res.document.id);
       onChanged();
     } catch (e) {
       setMessage((e as Error).message);
@@ -113,6 +125,7 @@ export function DocumentList({ documents, selected, activeId, config, onToggle, 
             Max {config.max_upload_mb} MB / {config.max_upload_pages} pages, {config.uploads_per_ip_per_day} per day. Deleted after{" "}
             {config.upload_ttl_hours}h. Uploaded text is sent to a third-party LLM; don&apos;t upload private files.
           </p>
+          {status && <p className="mt-2 text-xs text-slate-700">{status}</p>}
           {message && <p className="mt-2 text-xs text-slate-700">{message}</p>}
         </div>
       )}

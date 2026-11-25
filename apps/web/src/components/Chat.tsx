@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, SendHorizonal, Info } from "lucide-react";
+import { Info, Loader2, SendHorizonal, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -14,7 +14,7 @@ type Message =
 
 type Props = {
   documentIds: string[];
-  onCitation: (c: Citation) => void;
+  onCitation: (c: Citation, auto?: boolean) => void;
   suggestions: string[];
 };
 
@@ -23,6 +23,13 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string>();
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    if (!loading) return setSlow(false);
+    const t = setTimeout(() => setSlow(true), 8000);
+    return () => clearTimeout(t);
+  }, [loading]);
   const bottom = useRef<HTMLDivElement>(null);
 
   // Scroll only the message list, never the page (the panels stack on mobile).
@@ -40,7 +47,7 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
       const response = await api.chat(q, documentIds, conversationId);
       setConversationId(response.conversation_id);
       setMessages((m) => [...m, { role: "assistant", response }]);
-      if (response.citations[0]) onCitation(response.citations[0]);
+      if (response.citations[0]) onCitation(response.citations[0], true);
     } catch (e) {
       setMessages((m) => [...m, { role: "error", text: (e as Error).message }]);
     } finally {
@@ -53,11 +60,15 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 && (
           <div className="mx-auto mt-8 max-w-md text-center">
+            <span className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+              <Sparkles className="h-5 w-5" />
+            </span>
             <h1 className="text-xl font-semibold text-slate-800">Ask your documents</h1>
             <p className="mt-1 text-sm text-slate-500">
               Answers cite the exact page. Citations are verified against the retrieved text, so the model cannot invent page numbers.
             </p>
-            <div className="mt-6 flex flex-col gap-2">
+            <p className="mt-6 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Try one</p>
+            <div className="mt-2 flex flex-col gap-2">
               {suggestions.map((s) => (
                 <button key={s} onClick={() => ask(s)} className="rounded-md border border-slate-200 px-3 py-2 text-left text-sm text-slate-700 hover:border-indigo-300 hover:bg-indigo-50">
                   {s}
@@ -80,8 +91,11 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
           ),
         )}
         {loading && (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Loader2 className="h-4 w-4 animate-spin" /> Searching and answering...
+          <div role="status" className="w-fit rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-indigo-600" /> Searching the documents and checking citations...
+            </span>
+            {slow && <span className="mt-1 block text-xs text-slate-500">Still working: the free server or the LLM may be busy. This can take up to a minute.</span>}
           </div>
         )}
         <div ref={bottom} />
