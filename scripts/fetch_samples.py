@@ -1,8 +1,8 @@
 """Download the public sample PDFs listed in datasets/samples.json.
 
-PDFs are not committed to git; this script makes the demo corpus reproducible.
-Page-range truncation is deterministic (no random PDF /ID, no timestamps), so the
-laptop pipeline and the server image derive the same document ids.
+The resulting PDFs are committed to git (document ids are content hashes, and upstream
+files can change), so builds never download them; this script documents their provenance.
+Page-range truncation is deterministic (no random PDF /ID, no timestamps).
 
     uv run python scripts/fetch_samples.py
     uv run python scripts/fetch_samples.py --files-dir data/files   # also stage files for the API
