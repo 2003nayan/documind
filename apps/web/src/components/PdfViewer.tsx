@@ -15,11 +15,13 @@ type Props = {
   page: number;
   pageCount: number;
   highlights: BBox[];
+  /** Bumped on every citation click, so re-clicking the same citation scrolls back to it. */
+  highlightSeq?: number;
   pageWidthPt?: number;
   onPageChange: (page: number) => void;
 };
 
-export default function PdfViewer({ url, title, page, pageCount, highlights, pageWidthPt, onPageChange }: Props) {
+export default function PdfViewer({ url, title, page, pageCount, highlights, highlightSeq, pageWidthPt, onPageChange }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
   const [zoom, setZoom] = useState(1);
@@ -41,7 +43,7 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, pag
   useEffect(() => {
     const t = setTimeout(() => firstHighlight.current?.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
     return () => clearTimeout(t);
-  }, [highlights, page]);
+  }, [highlights, highlightSeq, page]);
 
   const renderWidth = width * zoom;
   const scale = pageWidthPt ? renderWidth / pageWidthPt : 1;

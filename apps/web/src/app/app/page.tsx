@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { FileText, Files, MessageSquare } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { DocumentList } from "@/components/DocumentList";
 import {
@@ -38,11 +38,15 @@ export default function Workspace() {
     docId: string | null;
     page: number;
     boxes: BBox[];
+    seq: number;
   }>({
     docId: null,
     page: 0,
     boxes: [],
+    seq: 0,
   });
+  // Per mount, so returning from the landing page re-selects every ready document.
+  const knownIds = useRef(new Set<string>());
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("chat");
   const [waking, setWaking] = useState(false);
@@ -56,8 +60,8 @@ export default function Workspace() {
         const ready = docs.filter((d) => d.status === "READY").map((d) => d.id);
         const next = new Set([...prev].filter((id) => ready.includes(id)));
         // New ready docs are selected by default.
-        for (const id of ready) if (!knownIds.has(id)) next.add(id);
-        ready.forEach((id) => knownIds.add(id));
+        for (const id of ready) if (!knownIds.current.has(id)) next.add(id);
+        ready.forEach((id) => knownIds.current.add(id));
         return next;
       });
       return docs;
@@ -96,16 +100,18 @@ export default function Workspace() {
   }, [documents, refresh]);
 
   const onCitation = useCallback(
-    async (c: Citation) => {
+    async (c: Citation, auto = false) => {
       if (active?.id !== c.document_id)
         await open(c.document_id, c.page_number);
       else setPage(c.page_number);
-      setHighlights({
+      setHighlights((h) => ({
         docId: c.document_id,
         page: c.page_number,
         boxes: c.bboxes,
-      });
-      setTab("pdf");
+        seq: h.seq + 1,
+      }));
+      // Auto-opened citations must not hide the answer on mobile.
+      if (!auto) setTab("pdf");
     },
     [active, open],
   );
@@ -244,6 +250,7 @@ export default function Workspace() {
                   ? highlights.boxes
                   : []
               }
+              highlightSeq={highlights.seq}
               onPageChange={(p) => setPage(p)}
             />
           ) : (
@@ -256,5 +263,3 @@ export default function Workspace() {
     </div>
   );
 }
-
-const knownIds = new Set<string>();

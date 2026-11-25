@@ -14,7 +14,7 @@ type Message =
 
 type Props = {
   documentIds: string[];
-  onCitation: (c: Citation) => void;
+  onCitation: (c: Citation, auto?: boolean) => void;
   suggestions: string[];
 };
 
@@ -47,7 +47,7 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
       const response = await api.chat(q, documentIds, conversationId);
       setConversationId(response.conversation_id);
       setMessages((m) => [...m, { role: "assistant", response }]);
-      if (response.citations[0]) onCitation(response.citations[0]);
+      if (response.citations[0]) onCitation(response.citations[0], true);
     } catch (e) {
       setMessages((m) => [...m, { role: "error", text: (e as Error).message }]);
     } finally {
