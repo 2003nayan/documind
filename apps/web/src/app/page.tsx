@@ -76,7 +76,7 @@ export default function Landing() {
           <a href="#how" className="hidden text-slate-400 transition hover:text-white md:block">How it works</a>
           <a href="#results" className="hidden text-slate-400 transition hover:text-white md:block">Results</a>
           <a href="#engineering" className="hidden text-slate-400 transition hover:text-white md:block">Engineering</a>
-          <a href={REPO} target="_blank" rel="noreferrer" className="ml-auto flex items-center gap-1.5 text-slate-400 transition hover:text-white">
+          <a href={REPO} target="_blank" rel="noreferrer" aria-label="GitHub" className="ml-auto flex items-center gap-1.5 text-slate-400 transition hover:text-white">
             <Github className="h-4 w-4" /> <span className="hidden sm:inline">GitHub</span>
           </a>
           <Link href="/app" className="rounded-lg bg-white px-3.5 py-1.5 font-semibold text-slate-900 transition hover:bg-indigo-100">
