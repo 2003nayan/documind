@@ -111,3 +111,29 @@ def test_duplicate_citations_deduplicated() -> None:
 def test_extractive_provider_end_to_end() -> None:
     res = answer_question("Who should rewind motors?", CHUNKS, {}, [ExtractiveProvider()])
     assert res.found and res.citations[0].page_number == 7
+
+
+def test_answer_sections_reference_only_validated_citations() -> None:
+    sections = [
+        {
+            "kind": "background",
+            "text": "Efficiency measures useful output relative to input.",
+            "source_ids": [],
+        },
+        {"kind": "document", "text": "The motor is rated at 95.0 percent.", "source_ids": ["S1"]},
+    ]
+    payload = {
+        "answer": "The motor is rated at 95.0 percent.",
+        "found": True,
+        "citations": [{"source_id": "S1", "quote": "a 50 hp, 4-pole motor is 95.0 percent"}],
+        "sections": sections,
+    }
+    result = answer_question("What is motor efficiency?", CHUNKS, {}, [Fake(payload)])
+    assert [(section.kind, section.citation_indices) for section in result.sections] == [
+        ("background", []),
+        ("document", [1]),
+    ]
+
+    sections[1]["source_ids"] = ["S2"]
+    result = answer_question("What is motor efficiency?", CHUNKS, {}, [Fake(payload)])
+    assert result.found and result.sections == []

@@ -1,7 +1,8 @@
 "use client";
 
+import { workspaceCopy } from "@/lib/workspace-copy";
 import clsx from "clsx";
-import { FileText, Files, MessageSquare } from "lucide-react";
+import { FileSearch, FileText, Files, MessageSquare } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -19,12 +20,6 @@ import {
 const PdfViewer = dynamic(() => import("@/components/PdfViewer"), {
   ssr: false,
 });
-
-const SUGGESTIONS = [
-  "What is the difference between energy-efficient and premium efficiency motors?",
-  "What is the maximum federal tax credit for a qualifying electric vehicle?",
-  "What wind tunnel or test setup does the NACA report describe?",
-];
 
 type Tab = "docs" | "chat" | "pdf";
 
@@ -45,8 +40,21 @@ export default function Workspace() {
     boxes: [],
     seq: 0,
   });
-  // Per mount, so returning from the landing page re-selects every ready document.
-  const knownIds = useRef(new Set<string>());
+  const [libraryOpen, setLibraryOpen] = useState(true);
+  const [split, setSplit] = useState(50);
+  const [source, setSource] = useState<Citation | null>(null);
+  const [notice, setNotice] = useState("");
+  const citationTrigger = useRef<HTMLButtonElement | null>(null);
+  const sourceHeading = useRef<HTMLHeadingElement>(null);
+  const composer = useRef<HTMLInputElement>(null);
+  const uploadButton = useRef<HTMLButtonElement>(null);
+  const libraryPanel = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef(selected);
+  const openRequest = useRef(0);
+
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("chat");
   const [waking, setWaking] = useState(false);
@@ -56,14 +64,13 @@ export default function Workspace() {
       const docs = await api.documents();
       setDocuments(docs);
       setLoadError(null);
-      setSelected((prev) => {
-        const ready = docs.filter((d) => d.status === "READY").map((d) => d.id);
-        const next = new Set([...prev].filter((id) => ready.includes(id)));
-        // New ready docs are selected by default.
-        for (const id of ready) if (!knownIds.current.has(id)) next.add(id);
-        ready.forEach((id) => knownIds.current.add(id));
-        return next;
-      });
+      const readyIds = new Set(docs.filter((doc) => doc.status === "READY").map((doc) => doc.id));
+      if ([...selectedRef.current].some((id) => !readyIds.has(id))) {
+        setNotice("A selected PDF is no longer available. Review the remaining documents before asking again.");
+      }
+      setSelected((prev) => new Set([...prev].filter((id) => readyIds.has(id))));
+      setActive((prev) => prev && readyIds.has(prev.id) ? prev : null);
+      setSource((prev) => prev && readyIds.has(prev.document_id) ? prev : null);
       return docs;
     } catch (e) {
       setLoadError((e as Error).message);
@@ -72,9 +79,12 @@ export default function Workspace() {
   }, []);
 
   const open = useCallback(async (id: string, targetPage = 1) => {
+    const request = ++openRequest.current;
     const detail = await api.document(id);
+    if (request !== openRequest.current) return false;
     setActive(detail);
     setPage(targetPage);
+    return true;
   }, []);
 
   useEffect(() => {
@@ -84,8 +94,20 @@ export default function Workspace() {
       .config()
       .then(setConfig)
       .catch(() => {});
+    const entry = window.location.hash;
+    if (entry === "#upload") setTab("docs");
     refresh()
-      .then((docs) => docs[0] && open(docs[0].id))
+      .then((docs) => {
+        if (entry !== "#sample") return;
+        const sample = docs.find((doc) => doc.source === "sample" && doc.status === "READY");
+        if (!sample) {
+          setNotice("No sample is available. You can upload a PDF or refresh the document list.");
+          return;
+        }
+        setSelected(new Set([sample.id]));
+        return open(sample.id);
+      })
+      .catch((error: Error) => setNotice(error.message))
       .finally(() => {
         clearTimeout(slow);
         setWaking(false);
@@ -93,28 +115,60 @@ export default function Workspace() {
     return () => clearTimeout(slow);
   }, [refresh, open]);
 
+  const isProcessing = documents.some((doc) => doc.status === "PROCESSING");
   useEffect(() => {
-    if (!documents.some((d) => d.status === "PROCESSING")) return;
-    const t = setInterval(refresh, 2000);
-    return () => clearInterval(t);
-  }, [documents, refresh]);
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") void refresh();
+    }, isProcessing ? 2000 : 30000);
+    return () => clearInterval(interval);
+  }, [isProcessing, refresh]);
 
   const onCitation = useCallback(
-    async (c: Citation, auto = false) => {
-      if (active?.id !== c.document_id)
-        await open(c.document_id, c.page_number);
-      else setPage(c.page_number);
-      setHighlights((h) => ({
-        docId: c.document_id,
-        page: c.page_number,
-        boxes: c.bboxes,
-        seq: h.seq + 1,
-      }));
-      // Auto-opened citations must not hide the answer on mobile.
-      if (!auto) setTab("pdf");
+    async (c: Citation, trigger: HTMLButtonElement) => {
+      try {
+        if (active?.id !== c.document_id) {
+          if (!(await open(c.document_id, c.page_number))) return;
+        } else {
+          openRequest.current++;
+          setPage(c.page_number);
+        }
+        citationTrigger.current = trigger;
+        setSource(c);
+        setHighlights((h) => ({
+          docId: c.document_id,
+          page: c.page_number,
+          boxes: c.bboxes,
+          seq: h.seq + 1,
+        }));
+        setTab("pdf");
+      } catch {
+        setNotice("This source could not be opened. It may have expired or been deleted.");
+        void refresh();
+      }
     },
-    [active, open],
+    [active, open, refresh],
   );
+
+  useEffect(() => {
+    if (tab === "pdf" && source) sourceHeading.current?.focus();
+  }, [tab, source, highlights.seq]);
+
+  function backToAnswer() {
+    setTab("chat");
+    requestAnimationFrame(() => citationTrigger.current?.focus());
+  }
+
+  function chooseDocuments() {
+    setLibraryOpen(true);
+    setTab("docs");
+    requestAnimationFrame(() => {
+      const library = libraryPanel.current;
+      (library?.querySelector<HTMLInputElement>('input[type="checkbox"]:enabled') ?? library)?.focus();
+    });
+  }
+
+  const selectedDocuments = documents.filter((doc) => selected.has(doc.id));
+  const sample = documents.find((doc) => doc.source === "sample" && doc.status === "READY");
 
   const pageInfo = useMemo(
     () => active?.pages.find((p) => p.page_number === page),
@@ -122,25 +176,28 @@ export default function Workspace() {
   );
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex items-center gap-3 border-b border-slate-200 px-4 py-2">
+    <div className="flex h-dvh flex-col bg-slate-950 text-slate-200 [color-scheme:dark]">
+      <header className="flex items-center gap-3 border-b border-slate-800 bg-slate-950 px-4 py-2">
         <Link
           href="/"
-          className="text-lg font-bold tracking-tight text-indigo-700"
+          className="flex items-center gap-2 text-lg font-bold tracking-tight text-white"
         >
+          <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500">
+            <FileSearch aria-hidden className="size-4" />
+          </span>
           DocuMind
         </Link>
-        <span className="hidden text-sm text-slate-500 md:inline">
+        <span className="hidden text-sm text-slate-400 md:inline">
           Grounded Q&amp;A over complex PDFs: layout, tables and scans
         </span>
         <Link
           href="/"
-          className="ml-auto text-sm text-slate-500 hover:text-slate-800"
+          className="ml-auto text-sm text-slate-400 hover:text-slate-100"
         >
           About
         </Link>
         <a
-          className="text-sm text-slate-500 hover:text-slate-800"
+          className="text-sm text-slate-400 hover:text-slate-100"
           href="https://github.com/2003nayan/documind"
           target="_blank"
           rel="noreferrer"
@@ -151,21 +208,24 @@ export default function Workspace() {
       {waking && (
         <div
           role="status"
-          className="bg-indigo-50 px-4 py-2 text-sm text-indigo-800"
+          className="bg-indigo-950/60 px-4 py-2 text-sm text-indigo-200"
         >
           Waking up the free server. The first request can take up to a minute.
         </div>
       )}
-      {loadError && (
+      {(loadError || notice) && (
         <div
           role="alert"
-          className="bg-amber-50 px-4 py-2 text-sm text-amber-800"
+          className="bg-amber-950/50 px-4 py-2 text-sm text-amber-200"
         >
-          {loadError}
+          {loadError || notice}{" "}
+          <button className="underline" onClick={() => { setNotice(""); void refresh(); }}>
+            Refresh documents
+          </button>
         </div>
       )}
       <nav
-        className="grid grid-cols-3 border-b border-slate-200 text-sm lg:hidden"
+        className="grid grid-cols-3 border-b border-slate-800 text-sm lg:hidden"
         aria-label="Panels"
       >
         {(
@@ -180,22 +240,27 @@ export default function Workspace() {
             onClick={() => setTab(id)}
             aria-pressed={tab === id}
             className={clsx(
-              "flex items-center justify-center gap-1.5 py-2",
+              "flex items-center justify-center gap-1.5 py-3",
               tab === id
-                ? "border-b-2 border-indigo-600 font-medium text-indigo-700"
-                : "text-slate-500",
+                ? "border-b-2 border-indigo-600 font-medium text-indigo-300"
+                : "text-slate-400",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
           </button>
         ))}
       </nav>
-      <main className="min-h-0 flex-1 lg:grid lg:grid-cols-[260px_minmax(360px,1fr)_minmax(360px,1.1fr)]">
+      <main className="min-h-0 flex-1 lg:grid" style={{
+        gridTemplateColumns: `${libraryOpen ? "240px " : ""}minmax(0, ${split}fr) minmax(0, ${100 - split}fr)`,
+      }}>
         <div
+          ref={libraryPanel}
+          tabIndex={-1}
+          aria-label="Document library"
           className={clsx(
             "h-full min-h-0",
             tab === "docs" ? "block" : "hidden",
-            "lg:block",
+            libraryOpen ? "lg:block" : "lg:hidden",
           )}
         >
           <DocumentList
@@ -212,52 +277,106 @@ export default function Workspace() {
               })
             }
             onOpen={(id) => {
-              open(id);
-              setTab("pdf");
+              setSource(null);
+              setHighlights((previous) => ({ ...previous, docId: null }));
+              void open(id).then((opened) => { if (opened) setTab("pdf"); }).catch(() =>
+                setNotice("This PDF could not be opened. Refresh the document list and try again."),
+              );
             }}
+            onAskAbout={(id) => {
+              setSelected(new Set([id]));
+              setSource(null);
+              setTab("chat");
+              requestAnimationFrame(() => composer.current?.focus());
+              void open(id).catch(() => setNotice("This PDF could not be opened."));
+            }}
+            uploadButton={uploadButton}
+            onUploadStarted={() => { setLibraryOpen(true); setTab("docs"); }}
             onChanged={refresh}
           />
         </div>
         <section
+          aria-label="Document chat"
           className={clsx(
-            "h-full min-h-0 overflow-hidden border-r border-slate-200",
+            "h-full min-h-0 overflow-hidden border-r border-slate-800",
             tab === "chat" ? "block" : "hidden",
             "lg:block",
           )}
         >
-          <Chat
-            documentIds={[...selected]}
-            onCitation={onCitation}
-            suggestions={SUGGESTIONS}
-          />
+          <div className="flex h-full min-w-0 flex-col">
+            <div className="hidden items-center gap-4 border-b border-slate-800 px-4 py-2 text-sm lg:flex">
+              <button aria-expanded={libraryOpen} onClick={() => setLibraryOpen(!libraryOpen)} className="font-medium text-indigo-300">
+                {libraryOpen ? "Hide documents" : "Show documents"}
+              </button>
+              {/* <label className="flex items-center gap-2 text-slate-300">
+                Chat width
+                <input type="range" className="accent-indigo-400" min="35" max="65" value={split} onChange={(event) => setSplit(Number(event.target.value))} />
+              </label> */}
+            </div>
+            <div className="min-h-0 flex-1">
+              <Chat
+                documents={selectedDocuments}
+                composer={composer}
+                onChooseDocuments={chooseDocuments}
+                onUploadPdf={config?.uploads_enabled ? () => uploadButton.current?.click() : undefined}
+                onTrySample={sample ? () => {
+                  setSelected(new Set([sample.id]));
+                  setSource(null);
+                  void open(sample.id).catch(() => setNotice("The sample PDF could not be opened."));
+                } : undefined}
+                onCitation={onCitation}
+                suggestions={selectedDocuments.length === 1 && selectedDocuments[0].title.includes("NACA")
+                  ? ["Summarize this PDF", "What wind tunnel or test setup does the NACA report describe?"]
+                  : ["Summarize this PDF"]}
+              />
+            </div>
+          </div>
         </section>
         <section
+          aria-label="PDF viewer"
           className={clsx(
-            "h-full min-h-0 overflow-hidden",
+            "h-full min-h-0 overflow-hidden bg-slate-900",
             tab === "pdf" ? "block" : "hidden",
             "lg:block",
           )}
         >
-          {active ? (
-            <PdfViewer
-              url={api.fileUrl(active.id)}
-              title={active.title}
-              page={page}
-              pageCount={active.page_count}
-              pageWidthPt={pageInfo?.width}
-              highlights={
-                highlights.docId === active.id && highlights.page === page
-                  ? highlights.boxes
-                  : []
-              }
-              highlightSeq={highlights.seq}
-              onPageChange={(p) => setPage(p)}
-            />
-          ) : (
-            <p className="p-6 text-sm text-slate-500">
-              Select a document to view it.
-            </p>
-          )}
+          <div className="flex h-full min-h-0 flex-col">
+            {source && (
+              <div className="max-h-48 shrink-0 overflow-auto border-b border-indigo-800 bg-indigo-950/60 px-4 py-3 text-sm">
+                <button onClick={backToAnswer} className="mb-2 font-medium text-indigo-300">{workspaceCopy.returnToAnswer}</button>
+                <h2 ref={sourceHeading} tabIndex={-1} className="font-semibold">
+                  {source.document_title} · p. {source.page_number}
+                </h2>
+                <blockquote className="my-1 text-slate-300">{source.quote}</blockquote>
+                <p className="text-slate-300">{source.bboxes.length ? workspaceCopy.passageLocation : workspaceCopy.pageLocation}</p>
+              </div>
+            )}
+            {active && !selected.has(active.id) && (
+              <p className="shrink-0 border-b border-slate-800 px-4 py-2 text-sm text-slate-300">This PDF is open for reading and is outside the current question scope.</p>
+            )}
+            <div className="min-h-0 flex-1">
+              {active ? (
+                <PdfViewer
+                  url={api.fileUrl(active.id)}
+                  title={active.title}
+                  page={page}
+                  pageCount={active.page_count}
+                  pageWidthPt={pageInfo?.width}
+                  highlights={
+                    highlights.docId === active.id && highlights.page === page
+                      ? highlights.boxes
+                      : []
+                  }
+                  highlightSeq={highlights.seq}
+                  onPageChange={setPage}
+                />
+              ) : (
+                <p className="p-6 text-sm text-slate-400">
+                  Select a document to view it.
+                </p>
+              )}
+            </div>
+          </div>
         </section>
       </main>
     </div>

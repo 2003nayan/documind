@@ -1,3 +1,4 @@
+import { workspaceCopy } from "@/lib/workspace-copy";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -101,27 +102,26 @@ export default function Landing() {
           </Reveal>
           <Reveal delay={100}>
             <h1 className="mx-auto mt-8 max-w-4xl text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Ask any PDF.
+              Ask questions about your PDFs.
               <br />
-              <span className="text-shine">Verify every answer.</span>
+              <span className="text-shine">See the sources.</span>
             </h1>
           </Reveal>
           <Reveal delay={200}>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-400">
-              DocuMind reads scanned reports, dense manuals and tables, then answers with citations that jump to the exact
-              passage on the page. If the documents don&apos;t support an answer, it says so.
+              Ask about a report, manual, or datasheet. Open a citation to see the supporting quote and page in the PDF.
             </p>
           </Reveal>
           <Reveal delay={300} className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
-              href="/app"
+              href="/app#sample"
               className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-6 py-3.5 font-semibold text-white shadow-[0_0_40px_-6px_rgba(129,140,248,0.8)] transition hover:shadow-[0_0_60px_-4px_rgba(192,132,252,0.9)]"
             >
-              Try it live <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+              {workspaceCopy.trySample} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </Link>
-            <a href={REPO} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur transition hover:bg-white/10">
-              <Github className="h-4 w-4" /> View the code
-            </a>
+            <Link href="/app#upload" className="cursor-pointer inline-flex items-center rounded-xl border border-white/15 px-5 py-3 font-semibold text-white hover:bg-white/10">
+              {workspaceCopy.uploadPdf}
+            </Link>
           </Reveal>
           <Reveal delay={450} className="mt-16">
             <HeroDemo />

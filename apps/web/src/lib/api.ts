@@ -47,6 +47,7 @@ export type Citation = {
 export type ChatResponse = {
   conversation_id: string;
   answer: string;
+  sections?: { kind: "document" | "background"; text: string; citation_indices: number[] }[];
   found: boolean;
   citations: Citation[];
   retrieved: ChunkInfo[];
@@ -93,13 +94,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers: { "X-Session-Id": sessionId(), ...(init.headers ?? {}) },
   });
   if (!res.ok) {
-    let message = `Request failed (${res.status})`;
+    let message = res.status >= 502 && res.status <= 504
+      ? "The service is temporarily unavailable. Please try again shortly."
+      : `Request failed (${res.status})`;
     try {
       const body = await res.json();
       if (typeof body.detail === "string") message = body.detail;
     } catch {}
-    if (res.status >= 502 && res.status <= 504)
-      message = "The API is waking up (free hosting sleeps when idle). Try again in ~30 seconds.";
     throw new ApiError(message, res.status);
   }
   return res.status === 204 ? (undefined as T) : res.json();
