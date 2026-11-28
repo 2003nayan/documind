@@ -13,6 +13,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.api.schemas import (
+    AnswerSectionOut,
     ChatRequest,
     ChatResponse,
     ChunkOut,
@@ -159,7 +160,10 @@ async def chat(
     x_session_id: str | None = Header(None),
 ) -> ChatResponse:
     visible = {r.id: r for r in db.scalars(visible_documents(x_session_id)).all() if r.status == "READY"}
-    doc_ids = [d for d in (body.document_ids or visible.keys()) if d in visible]
+    requested_ids = body.document_ids if body.document_ids is not None else list(visible)
+    doc_ids = [d for d in requested_ids if d in visible]
+    if body.document_ids and len(doc_ids) != len(requested_ids):
+        raise HTTPException(400, "A selected document is unavailable. Update the documents and ask again.")
     if not doc_ids:
         raise HTTPException(400, "No ready documents selected")
     try:
@@ -226,6 +230,10 @@ async def chat(
         latency_ms=result.latency_ms,
         retrieval_ms=retrieval_ms,
         warning=result.warning,
+        sections=[
+            AnswerSectionOut(kind=section.kind, text=section.text, citation_indices=section.citation_indices)
+            for section in result.sections
+        ],
     )
 
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -56,6 +57,12 @@ class CitationOut(BaseModel):
     bboxes: list[dict]
 
 
+class AnswerSectionOut(BaseModel):
+    kind: Literal["document", "background"]
+    text: str
+    citation_indices: list[int]
+
+
 class ChatResponse(BaseModel):
     conversation_id: str
     answer: str
@@ -67,6 +74,7 @@ class ChatResponse(BaseModel):
     latency_ms: int
     retrieval_ms: int
     warning: str | None = None
+    sections: list[AnswerSectionOut] = Field(default_factory=list)
 
 
 class UploadResponse(BaseModel):

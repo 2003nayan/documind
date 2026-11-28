@@ -1,24 +1,32 @@
 "use client";
 
-import { Info, Loader2, SendHorizonal, Sparkles } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { workspaceCopy } from "@/lib/workspace-copy";
+import { Loader2, SendHorizonal, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import clsx from "clsx";
-import { api, ChatResponse, Citation } from "@/lib/api";
+import { api, ApiError, ChatResponse, Citation, DocumentInfo } from "@/lib/api";
+
+type Question = { text: string; ids: string[]; titles: string[] };
+type OpenCitation = (citation: Citation, trigger: HTMLButtonElement) => void;
 
 type Message =
-  | { role: "user"; text: string }
+  | { role: "user"; question: Question }
   | { role: "assistant"; response: ChatResponse }
-  | { role: "error"; text: string };
+  | { role: "error"; text: string; question: Question; retryable: boolean };
 
 type Props = {
-  documentIds: string[];
-  onCitation: (c: Citation, auto?: boolean) => void;
+  documents: DocumentInfo[];
+  composer: RefObject<HTMLInputElement | null>;
+  onCitation: OpenCitation;
+  onChooseDocuments: () => void;
+  onUploadPdf?: () => void;
+  onTrySample?: () => void;
   suggestions: string[];
 };
 
-export function Chat({ documentIds, onCitation, suggestions }: Props) {
+export function Chat({ documents, composer, onCitation, onChooseDocuments, onUploadPdf, onTrySample, suggestions }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,20 +44,35 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
   useEffect(() => {
     const list = bottom.current?.parentElement;
     list?.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages.length]);
 
-  async function ask(q: string) {
-    if (!q.trim() || loading) return;
+  function submit(text: string) {
+    if (text.trim().length < 2 || !documents.length || loading) return;
+    const request = {
+      text: text.trim(),
+      ids: documents.map((document) => document.id),
+      titles: documents.map((document) => document.title),
+    };
     setQuestion("");
-    setMessages((m) => [...m, { role: "user", text: q }]);
+    setMessages((previous) => [...previous, { role: "user", question: request }]);
+    void ask(request);
+  }
+
+  async function ask(request: Question, retryIndex?: number) {
+    if (loading) return;
     setLoading(true);
+    function showResult(message: Message) {
+      setMessages((previous) => retryIndex === undefined
+        ? [...previous, message]
+        : previous.map((item, index) => index === retryIndex ? message : item));
+    }
     try {
-      const response = await api.chat(q, documentIds, conversationId);
+      const response = await api.chat(request.text, request.ids, conversationId);
       setConversationId(response.conversation_id);
-      setMessages((m) => [...m, { role: "assistant", response }]);
-      if (response.citations[0]) onCitation(response.citations[0], true);
+      showResult({ role: "assistant", response });
     } catch (e) {
-      setMessages((m) => [...m, { role: "error", text: (e as Error).message }]);
+      const retryable = !(e instanceof ApiError) || e.status >= 500;
+      showResult({ role: "error", text: (e as Error).message, question: request, retryable });
     } finally {
       setLoading(false);
     }
@@ -57,107 +80,137 @@ export function Chat({ documentIds, onCitation, suggestions }: Props) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+      <div role="log" aria-label="Conversation" className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 && (
           <div className="mx-auto mt-8 max-w-md text-center">
-            <span className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+            <span className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-950/60 text-indigo-300">
               <Sparkles className="h-5 w-5" />
             </span>
-            <h1 className="text-xl font-semibold text-slate-800">Ask your documents</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Answers cite the exact page. Citations are verified against the retrieved text, so the model cannot invent page numbers.
+            <h1 className="text-xl font-semibold text-slate-100">Ask your documents</h1>
+            <p className="mt-2 text-sm text-slate-300">
+              {documents.length ? "Ask a question, then open a citation to check the source." : "Choose a sample or upload a PDF to get started."}
             </p>
-            <p className="mt-6 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Try one</p>
-            <div className="mt-2 flex flex-col gap-2">
-              {suggestions.map((s) => (
-                <button key={s} onClick={() => ask(s)} className="rounded-md border border-slate-200 px-3 py-2 text-left text-sm text-slate-700 hover:border-indigo-300 hover:bg-indigo-50">
-                  {s}
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {documents.length ? suggestions.map((suggestion) => (
+                <button key={suggestion} disabled={loading} onClick={() => submit(suggestion)} className="min-h-11 rounded-md border border-slate-700 px-3 text-sm text-indigo-300 hover:bg-indigo-950/60">
+                  {suggestion}
                 </button>
-              ))}
+              )) : (
+                <>
+                  {onTrySample && <button onClick={onTrySample} className="min-h-11 rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white">{workspaceCopy.trySample}</button>}
+                  {onUploadPdf && <button onClick={onUploadPdf} className="min-h-11 rounded-md border border-slate-700 px-4 text-sm font-semibold text-indigo-300">{workspaceCopy.uploadPdf}</button>}
+                  <button onClick={onChooseDocuments} className="min-h-11 rounded-md border border-slate-700 px-4 text-sm font-semibold text-indigo-300">{workspaceCopy.choosePdf}</button>
+                </>
+              )}
             </div>
           </div>
         )}
         {messages.map((m, i) =>
           m.role === "user" ? (
             <div key={i} className="ml-auto max-w-[85%] rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white">
-              {m.text}
+              {m.question.text}
+              <div className="mt-1 break-words text-xs text-indigo-100">{m.question.titles.join(", ")}</div>
             </div>
           ) : m.role === "error" ? (
-            <div key={i} role="alert" className="max-w-[85%] rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div key={i} role="alert" className="max-w-[85%] rounded-lg border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {m.text}
+              {m.retryable && (
+                <button disabled={loading} onClick={() => void ask(m.question, i)} className="mt-2 block font-semibold underline">
+                  Retry this question
+                </button>
+              )}
             </div>
           ) : (
             <AssistantMessage key={i} response={m.response} onCitation={onCitation} />
           ),
         )}
         {loading && (
-          <div role="status" className="w-fit rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+          <div role="status" className="w-fit rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-300">
             <span className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-indigo-600" /> Searching the documents and checking citations...
+              <Loader2 className="h-4 w-4 animate-spin text-indigo-300" /> Searching the documents and checking citations...
             </span>
-            {slow && <span className="mt-1 block text-xs text-slate-500">Still working: the free server or the LLM may be busy. This can take up to a minute.</span>}
+            {slow && <span className="mt-1 block text-xs text-slate-400">Still working: the free server or the LLM may be busy. This can take up to a minute.</span>}
           </div>
         )}
         <div ref={bottom} />
       </div>
       <form
-        className="flex gap-2 border-t border-slate-200 p-3"
+        className="border-t border-slate-800 bg-slate-950 p-3"
         onSubmit={(e) => {
           e.preventDefault();
-          ask(question);
+          submit(question);
         }}
       >
-        <input
-          aria-label="Question"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder={documentIds.length ? "Ask a question about the selected documents..." : "Select at least one document"}
-          disabled={!documentIds.length}
-          maxLength={1000}
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 disabled:bg-slate-50"
-        />
-        <button type="submit" aria-label="Send" disabled={loading || !question.trim() || !documentIds.length} className="rounded-md bg-indigo-600 px-3 text-white hover:bg-indigo-700 disabled:opacity-40">
-          <SendHorizonal className="h-4 w-4" />
-        </button>
+        <div id="question-scope" className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+          <span className="min-w-0 break-words text-slate-300">
+            {documents.length ? <><strong>{workspaceCopy.questionScope}</strong> {documents.map((document) => document.title).join(", ")}</> : workspaceCopy.chooseReady}
+          </span>
+          <button type="button" onClick={onChooseDocuments} className="font-medium text-indigo-300 underline">{workspaceCopy.changeDocuments}</button>
+        </div>
+        <div className="flex gap-2">
+          <input
+            ref={composer}
+            aria-describedby="question-scope"
+            aria-label="Question"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder={documents.length ? "Ask a question about the selected documents..." : "Select at least one document"}
+            maxLength={1000}
+            className="min-h-11 min-w-0 flex-1 rounded-md border border-slate-700 px-3 py-2 text-sm bg-slate-900 placeholder:text-slate-400 focus:border-indigo-400 disabled:bg-slate-900"
+          />
+          <button type="submit" aria-label="Send" disabled={loading || question.trim().length < 2 || !documents.length} className="min-w-11 rounded-md bg-indigo-600 px-3 text-white hover:bg-indigo-700 disabled:opacity-40">
+            <SendHorizonal className="h-4 w-4" />
+          </button>
+        </div>
       </form>
     </div>
   );
 }
 
-function AssistantMessage({ response, onCitation }: { response: ChatResponse; onCitation: (c: Citation) => void }) {
-  const [showSources, setShowSources] = useState(false);
-  return (
-    <div className="max-w-[92%] rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800" data-testid="assistant-message">
-      <div className={clsx("prose prose-sm max-w-none", !response.found && "text-slate-500 italic")}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{response.answer}</ReactMarkdown>
+function AssistantMessage({ response, onCitation }: { response: ChatResponse; onCitation: OpenCitation }) {
+  function renderCitations(citations: Citation[]) {
+    if (!citations.length) return null;
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        {citations.map((citation) => (
+          <button
+            key={citation.index}
+            onClick={(event) => onCitation(citation, event.currentTarget)}
+            data-testid="citation"
+            className="min-h-10 rounded-md border border-indigo-700 bg-indigo-950/60 px-3 py-1 text-left text-xs font-medium text-indigo-200 hover:bg-indigo-900/70"
+          >
+            {citation.document_title} · p. {citation.page_number}
+          </button>
+        ))}
       </div>
-      {response.warning && <p className="mt-2 text-xs text-amber-700">{response.warning}</p>}
-      {response.citations.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {response.citations.map((c) => (
-            <button
-              key={`${c.chunk_id}-${c.index}`}
-              onClick={() => onCitation(c)}
-              title={c.quote}
-              data-testid="citation"
-              className="rounded border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs text-indigo-700 hover:bg-indigo-100"
-            >
-              [{c.index}] {c.document_title.slice(0, 28)}
-              {c.document_title.length > 28 ? "…" : ""}, p.{c.page_number}
-            </button>
+    );
+  }
+
+  return (
+    <div className="max-w-[92%] rounded-lg border border-slate-800 bg-slate-900 p-4 text-sm text-slate-100" data-testid="assistant-message">
+      {response.sections?.length ? (
+        <div className="space-y-4">
+          {response.sections.map((section, index) => (
+            <section key={index} className={section.kind === "background" ? "rounded-md bg-slate-900 p-3" : undefined}>
+              <h2 className="mb-1 font-semibold">{section.kind === "background" ? workspaceCopy.background : workspaceCopy.documentEvidence}</h2>
+              <div className="prose prose-invert prose-sm max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{section.text}</ReactMarkdown></div>
+              {renderCitations(response.citations.filter((citation) => section.citation_indices.includes(citation.index)))}
+            </section>
           ))}
         </div>
+      ) : (
+        <>
+          <div className={clsx("prose prose-invert prose-sm max-w-none", !response.found && "text-slate-300")}>
+            {response.found ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{response.answer.replace(/\s*\[S\d+(?:\s*,\s*S\d+)*\]/g, "")}</ReactMarkdown> :
+              <p>{response.warning ? response.warning : workspaceCopy.noEvidence}</p>}
+          </div>
+          {response.found && renderCitations(response.citations)}
+        </>
       )}
-      <div className="mt-2 flex items-center gap-3 text-[11px] text-slate-400">
-        <span>
-          {response.provider} · retrieval {response.retrieval_ms} ms · LLM {response.latency_ms} ms
-        </span>
-        <button className="flex items-center gap-1 hover:text-slate-600" onClick={() => setShowSources((s) => !s)}>
-          <Info className="h-3 w-3" /> {showSources ? "Hide" : "Show"} {response.retrieved.length} retrieved passages
-        </button>
-      </div>
-      {showSources && (
-        <ol className="mt-2 space-y-2 border-t border-slate-100 pt-2 text-xs text-slate-600">
+      <details className="mt-3 text-xs text-slate-300">
+        <summary className="cursor-pointer font-medium">{workspaceCopy.answerDetails}</summary>
+        <p className="mt-2">{response.provider} · retrieval {response.retrieval_ms} ms · answer {response.latency_ms} ms</p>
+        <ol className="mt-2 space-y-2 border-t border-slate-800 pt-2 text-xs text-slate-300">
           {response.retrieved.map((r, i) => (
             <li key={r.chunk_id}>
               <span className="font-medium">
@@ -168,7 +221,7 @@ function AssistantMessage({ response, onCitation }: { response: ChatResponse; on
             </li>
           ))}
         </ol>
-      )}
+      </details>
     </div>
   );
 }

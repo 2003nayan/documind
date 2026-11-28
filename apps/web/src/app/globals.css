@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@layer base {
+  a[href],
+  button:enabled {
+    cursor: pointer;
+  }
+}
+
 body {
   background: #fff;
   color: #0f172a;

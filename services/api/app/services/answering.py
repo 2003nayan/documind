@@ -10,6 +10,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
+from typing import Literal
 
 from documind_core.schemas import Chunk
 
@@ -18,12 +19,23 @@ from app.llm.base import LLMError, LLMProvider, LLMRequest, QuotaExceededError
 log = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are DocuMind, a document question-answering assistant.
-Answer ONLY from the numbered sources provided. Never use outside knowledge.
+Ground answers about the selected documents in the numbered sources provided.
 Return JSON: {"answer": string, "found": boolean, "citations": [{"source_id": "S1", "quote": string}]}
 Rules:
-- Every factual claim must be supported by at least one citation.
+- Also return "sections", an ordered array of objects with "kind" ("document" or "background"),
+  "text" (Markdown), and "source_ids" (an array such as ["S1"]). Keep each document section focused on
+  one point with its supporting source IDs. Use an empty source_ids array for general background.
+  Omit inline source markers in section text. Keep "answer" as a plain Markdown version for older clients.
+- Every claim about the selected documents must be supported by at least one citation.
 - "quote" must be copied verbatim from the cited source (a short span, max ~200 characters).
-- If the sources do not contain the answer, return {"answer": "", "found": false, "citations": []}.
+- For a question asking what a technical term or acronym means, prefer a definition from the sources.
+- If a source mentions the term and the provided passages do not define it, give a brief standard
+  definition labeled "General background". Say that the provided passages mention the term
+  without defining it. Set "found" to true and cite a verbatim quote that contains the term.
+  The citation supports the mention. Use this exception only when the meaning is clear
+  from the context. If the meaning is ambiguous, abstain.
+- For all other questions without a source-supported answer, or if the requested term is absent
+  from the provided passages, return {"answer": "", "found": false, "citations": []}.
 - Keep the answer concise. Use Markdown lists or tables when helpful."""
 
 NOT_FOUND = "I couldn't find this in the selected documents."
@@ -40,6 +52,13 @@ class ValidatedCitation:
 
 
 @dataclass
+class AnswerSection:
+    kind: Literal["document", "background"]
+    text: str
+    citation_indices: list[int]
+
+
+@dataclass
 class AnswerResult:
     answer: str
     found: bool
@@ -50,6 +69,7 @@ class AnswerResult:
     chunks_considered: int
     dropped_citations: int = 0
     warning: str | None = None
+    sections: list[AnswerSection] = field(default_factory=list)
 
 
 def build_prompt(question: str, chunks: list[Chunk], titles: dict[str, str]) -> str:
@@ -107,7 +127,39 @@ def answer_question(
         chunks_considered=len(chunks),
         dropped_citations=dropped,
         warning=warning,
+        sections=validate_sections(payload.get("sections"), citations, chunks) if found else [],
     )
+
+
+def validate_sections(
+    raw: object, citations: list[ValidatedCitation], chunks: list[Chunk]
+) -> list[AnswerSection]:
+    if not isinstance(raw, list):
+        return []
+    source_chunks = {f"S{i}": chunk.chunk_id for i, chunk in enumerate(chunks, start=1)}
+    sections: list[AnswerSection] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            return []
+        kind, text, source_ids = item.get("kind"), item.get("text"), item.get("source_ids")
+        if not isinstance(text, str) or not text.strip() or not isinstance(source_ids, list):
+            return []
+        if kind == "background" and not source_ids:
+            sections.append(AnswerSection("background", text.strip(), []))
+        elif kind == "document" and source_ids:
+            indices = []
+            for source in source_ids:
+                chunk_id = source_chunks.get(source) if isinstance(source, str) else None
+                matches = [
+                    i for i, citation in enumerate(citations, start=1) if citation.chunk_id == chunk_id
+                ]
+                if not matches:
+                    return []
+                indices.extend(matches)
+            sections.append(AnswerSection("document", text.strip(), sorted(set(indices))))
+        else:
+            return []
+    return sections if any(section.kind == "document" for section in sections) else []
 
 
 def parse_json(text: str) -> dict:

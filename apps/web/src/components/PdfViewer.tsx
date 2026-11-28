@@ -32,7 +32,7 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, hig
   useEffect(() => {
     const el = container.current;
     if (!el) return;
-    const obs = new ResizeObserver(() => setWidth(Math.max(300, el.clientWidth - 32)));
+    const obs = new ResizeObserver(() => setWidth(Math.max(1, el.clientWidth - 32)));
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -50,32 +50,32 @@ export default function PdfViewer({ url, title, page, pageCount, highlights, hig
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-slate-200 px-3 py-2 text-sm">
-        <span className="flex-1 truncate font-medium text-slate-800" title={title}>
+      <div className="flex items-center gap-2 border-b border-slate-800 px-3 py-2 text-sm">
+        <span className="flex-1 truncate font-medium text-slate-100" title={title}>
           {title}
         </span>
-        <button aria-label="Previous page" disabled={page <= 1} onClick={() => onPageChange(page - 1)} className="rounded p-1 hover:bg-slate-100 disabled:opacity-30">
+        <button aria-label="Previous page" disabled={page <= 1} onClick={() => onPageChange(page - 1)} className="grid min-h-9 min-w-9 place-items-center rounded hover:bg-slate-800 disabled:opacity-30">
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="tabular-nums text-slate-600">
+        <span className="tabular-nums text-slate-300">
           {page} / {pageCount}
         </span>
-        <button aria-label="Next page" disabled={page >= pageCount} onClick={() => onPageChange(page + 1)} className="rounded p-1 hover:bg-slate-100 disabled:opacity-30">
+        <button aria-label="Next page" disabled={page >= pageCount} onClick={() => onPageChange(page + 1)} className="grid min-h-9 min-w-9 place-items-center rounded hover:bg-slate-800 disabled:opacity-30">
           <ChevronRight className="h-4 w-4" />
         </button>
-        <button aria-label="Zoom out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className="rounded p-1 hover:bg-slate-100">
+        <button aria-label="Zoom out" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className="grid min-h-9 min-w-9 place-items-center rounded hover:bg-slate-800">
           <ZoomOut className="h-4 w-4" />
         </button>
-        <button aria-label="Zoom in" onClick={() => setZoom((z) => Math.min(3, z + 0.25))} className="rounded p-1 hover:bg-slate-100">
+        <button aria-label="Zoom in" onClick={() => setZoom((z) => Math.min(3, z + 0.25))} className="grid min-h-9 min-w-9 place-items-center rounded hover:bg-slate-800">
           <ZoomIn className="h-4 w-4" />
         </button>
       </div>
-      <div ref={container} className="flex-1 overflow-auto bg-slate-100 p-4">
+      <div ref={container} className="flex-1 overflow-auto bg-slate-900 p-4">
         {error ? (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-red-300">{error}</p>
         ) : (
-          <Document file={file} onLoadError={(e) => setError(`Could not load PDF: ${e.message}`)} loading={<p className="text-sm text-slate-500">Loading PDF...</p>}>
-            <div className="relative mx-auto w-fit shadow" data-testid="pdf-page">
+          <Document file={file} onLoadError={(e) => setError(`Could not load PDF: ${e.message}`)} loading={<p className="text-sm text-slate-400">Loading PDF...</p>}>
+            <div className="relative mx-auto w-fit bg-white shadow-lg" data-testid="pdf-page">
               <Page pageNumber={page} width={renderWidth} />
               {highlights.map((b, i) => (
                 <div
